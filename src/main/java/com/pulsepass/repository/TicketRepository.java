@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
@@ -29,5 +30,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     long countByEventCodeAndStatus(
             @Param("eventCode") String eventCode,
             @Param("status") TicketStatus status
+    );
+
+    List<Ticket> findByEventEventDateAfterOrderByEventEventDateAsc(
+            LocalDate fromDate
     );
 }
