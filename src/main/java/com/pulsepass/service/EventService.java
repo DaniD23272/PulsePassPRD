@@ -1,25 +1,15 @@
 package com.pulsepass.service;
 
-import com.pulsepass.entity.Event;
-import com.pulsepass.enums.EventStatus;
-
+import com.pulsepass.dto.request.CreateEventRequest;
+import com.pulsepass.dto.response.EventResponse;
+import com.pulsepass.dto.response.EventSummaryResponse;
 import java.util.List;
 
 public interface EventService {
-
-    List<Event> findAll();
-
-    Event findById(Long id);
-
-    Event findByEventCode(String eventCode);
-
-    List<Event> findByStatus(EventStatus status);
-
-    List<Event> findByVenueCode(String code);
-
-    Event create(Event event);
-
-    Event update(Long id, Event event);
-
-    void delete(Long id);
+    EventResponse create(CreateEventRequest request);
+    EventResponse findByCode(String eventCode);
+    List<EventSummaryResponse> findPublishedEvents();
+    EventResponse publish(String eventCode);
+    EventResponse addArtist(String eventCode, Long artistId);
+    List<EventSummaryResponse> findByArtist(String stageName);
 }

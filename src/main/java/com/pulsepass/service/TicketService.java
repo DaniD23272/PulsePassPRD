@@ -1,23 +1,14 @@
 package com.pulsepass.service;
 
-import com.pulsepass.entity.Ticket;
-import com.pulsepass.enums.TicketStatus;
-
+import com.pulsepass.dto.request.PurchaseTicketRequest;
+import com.pulsepass.dto.response.TicketResponse;
 import java.util.List;
 
 public interface TicketService {
-
-    List<Ticket> findAll();
-
-    Ticket findById(Long id);
-
-    List<Ticket> findByUserEmail(String email, TicketStatus status);
-
-    List<Ticket> findByEventCode(String eventCode, TicketStatus status);
-
-    Ticket create(Ticket ticket);
-
-    Ticket update(Long id, Ticket ticket);
-
-    void delete(Long id);
+    TicketResponse purchase(PurchaseTicketRequest request);
+    TicketResponse findByCode(String ticketCode);
+    List<TicketResponse> findByUserEmail(String email);
+    List<TicketResponse> findPaidTicketsByEvent(String eventCode);
+    TicketResponse cancel(String ticketCode);
+    TicketResponse markAsUsed(String ticketCode);
 }

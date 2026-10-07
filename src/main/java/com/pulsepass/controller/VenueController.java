@@ -1,8 +1,7 @@
 package com.pulsepass.controller;
 
-import com.pulsepass.entity.Venue;
+import com.pulsepass.dto.response.VenueResponse;
 import com.pulsepass.service.VenueService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,37 +18,14 @@ public class VenueController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Venue>> findAll() {
-        return ResponseEntity.ok(venueService.findAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Venue> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(venueService.findById(id));
+    public ResponseEntity<List<VenueResponse>> findActiveVenues() {
+        return ResponseEntity.ok(venueService.findActiveVenues());
     }
 
     @GetMapping("/code/{code}")
-    public ResponseEntity<Venue> findByCode(@PathVariable String code) {
+    public ResponseEntity<VenueResponse> findByCode(
+            @PathVariable String code) {
+
         return ResponseEntity.ok(venueService.findByCode(code));
-    }
-
-    @PostMapping
-    public ResponseEntity<Venue> create(@RequestBody Venue venue) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(venueService.create(venue));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Venue> update(
-            @PathVariable Long id,
-            @RequestBody Venue venue) {
-        return ResponseEntity.ok(venueService.update(id, venue));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        venueService.delete(id);
-        return ResponseEntity.noContent().build();
     }
 }

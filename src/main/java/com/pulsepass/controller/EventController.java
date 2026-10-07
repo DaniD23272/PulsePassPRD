@@ -1,73 +1,32 @@
 package com.pulsepass.controller;
 
-import com.pulsepass.entity.Event;
-import com.pulsepass.enums.EventStatus;
+import com.pulsepass.dto.request.CreateEventRequest;
+import com.pulsepass.dto.response.EventResponse;
+import com.pulsepass.dto.response.EventSummaryResponse;
 import com.pulsepass.service.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
-
     private final EventService eventService;
-
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Event>> findAll() {
-        return ResponseEntity.ok(eventService.findAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Event> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(eventService.findById(id));
-    }
-
-    @GetMapping("/code/{eventCode}")
-    public ResponseEntity<Event> findByEventCode(
-            @PathVariable String eventCode) {
-        return ResponseEntity.ok(
-                eventService.findByEventCode(eventCode));
-    }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Event>> findByStatus(
-            @PathVariable EventStatus status) {
-        return ResponseEntity.ok(
-                eventService.findByStatus(status));
-    }
-
-    @GetMapping("/venue/{code}")
-    public ResponseEntity<List<Event>> findByVenueCode(
-            @PathVariable String code) {
-        return ResponseEntity.ok(
-                eventService.findByVenueCode(code));
-    }
+    public EventController(EventService eventService) { this.eventService = eventService; }
 
     @PostMapping
-    public ResponseEntity<Event> create(@RequestBody Event event) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(eventService.create(event));
+    public ResponseEntity<EventResponse> create(@RequestBody CreateEventRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.create(request));
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Event> update(
-            @PathVariable Long id,
-            @RequestBody Event event) {
-        return ResponseEntity.ok(
-                eventService.update(id, event));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        eventService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
+    @GetMapping("/{eventCode}")
+    public ResponseEntity<EventResponse> findByCode(@PathVariable String eventCode) { return ResponseEntity.ok(eventService.findByCode(eventCode)); }
+    @GetMapping
+    public ResponseEntity<List<EventSummaryResponse>> findPublishedEvents() { return ResponseEntity.ok(eventService.findPublishedEvents()); }
+    @PutMapping("/{eventCode}/publish")
+    public ResponseEntity<EventResponse> publish(@PathVariable String eventCode) { return ResponseEntity.ok(eventService.publish(eventCode)); }
+    @PostMapping("/{eventCode}/artists/{artistId}")
+    public ResponseEntity<EventResponse> addArtist(@PathVariable String eventCode, @PathVariable Long artistId) { return ResponseEntity.ok(eventService.addArtist(eventCode, artistId)); }
+    @GetMapping("/artist/{stageName}")
+    public ResponseEntity<List<EventSummaryResponse>> findByArtist(@PathVariable String stageName) { return ResponseEntity.ok(eventService.findByArtist(stageName)); }
 }

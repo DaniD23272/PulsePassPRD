@@ -1,86 +1,43 @@
 package com.pulsepass.service.impl;
 
+import com.pulsepass.dto.response.ArtistResponse;
 import com.pulsepass.entity.Artist;
-import com.pulsepass.exception.BusinessRuleException;
 import com.pulsepass.exception.ResourceNotFoundException;
+import com.pulsepass.mapper.ArtistMapper;
 import com.pulsepass.repository.ArtistRepository;
 import com.pulsepass.service.ArtistService;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
 public class ArtistServiceImpl implements ArtistService {
-
     private final ArtistRepository artistRepository;
+    private final ArtistMapper artistMapper;
 
-    public ArtistServiceImpl(ArtistRepository artistRepository) {
+    public ArtistServiceImpl(ArtistRepository artistRepository, ArtistMapper artistMapper) {
         this.artistRepository = artistRepository;
+        this.artistMapper = artistMapper;
     }
 
     @Override
-    public List<Artist> findAll() {
-        return artistRepository.findAll();
+    @Transactional(readOnly = true)
+    public ArtistResponse findById(Long id) {
+        return artistMapper.toResponse(artistRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Artist not found: " + id)));
     }
 
     @Override
-    public Artist findById(Long id) {
-        return artistRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Artist not found with id: " + id));
+    @Transactional(readOnly = true)
+    public ArtistResponse findByStageName(String stageName) {
+        return artistMapper.toResponse(artistRepository.findByStageNameIgnoreCase(stageName)
+                .orElseThrow(() -> new ResourceNotFoundException("Artist not found: " + stageName)));
     }
 
     @Override
-    public Artist findByStageName(String stageName) {
-        return artistRepository.findByStageName(stageName)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Artist not found with stage name: " + stageName));
-    }
-
-    @Override
-    public Artist create(Artist artist) {
-
-        if (artistRepository.findByStageName(artist.getStageName()).isPresent()) {
-            throw new BusinessRuleException(
-                    "An artist with stage name '" +
-                            artist.getStageName() +
-                            "' already exists.");
-        }
-
-        if (artist.getActive() == null) {
-            artist.setActive(true);
-        }
-
-        return artistRepository.save(artist);
-    }
-
-    @Override
-    public Artist update(Long id, Artist artist) {
-
-        Artist existingArtist = findById(id);
-
-        artistRepository.findByStageName(artist.getStageName())
-                .filter(existing -> !existing.getId().equals(id))
-                .ifPresent(existing -> {
-                    throw new BusinessRuleException(
-                            "An artist with stage name '" +
-                                    artist.getStageName() +
-                                    "' already exists.");
-                });
-
-        existingArtist.setStageName(artist.getStageName());
-        existingArtist.setCountry(artist.getCountry());
-        existingArtist.setGenre(artist.getGenre());
-        existingArtist.setActive(artist.getActive());
-
-        return artistRepository.save(existingArtist);
-    }
-
-    @Override
-    public void delete(Long id) {
-        Artist artist = findById(id);
-        artistRepository.delete(artist);
+    @Transactional(readOnly = true)
+    public List<ArtistResponse> findActiveArtists() {
+        return artistRepository.findByActiveTrueOrderByStageNameAsc()
+                .stream().map(artistMapper::toResponse).toList();
     }
 }

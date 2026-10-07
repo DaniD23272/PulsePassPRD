@@ -1,17 +1,14 @@
 package com.pulsepass.dto.request;
 
 import com.pulsepass.enums.EventCategory;
-
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record CreateEventRequest(
         String eventCode,
         String name,
         String description,
         EventCategory category,
-        LocalDate eventDate,
+        LocalDateTime eventDate,
         Integer minimumAge,
-        String streamingUrl,
         String venueCode
-) {
-}
+) {}

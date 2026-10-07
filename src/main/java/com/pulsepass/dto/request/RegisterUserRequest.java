@@ -1,11 +1,13 @@
 package com.pulsepass.dto.request;
 
+import java.time.LocalDate;
+
 public record RegisterUserRequest(
         String username,
         String email,
-        String password,
         String firstName,
         String lastName,
-        Integer age
-) {
-}
+        String phone,
+        String city,
+        LocalDate birthDate
+) {}

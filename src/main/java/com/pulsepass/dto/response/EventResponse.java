@@ -2,8 +2,8 @@ package com.pulsepass.dto.response;
 
 import com.pulsepass.enums.EventCategory;
 import com.pulsepass.enums.EventStatus;
-
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public record EventResponse(
         Long id,
@@ -12,9 +12,9 @@ public record EventResponse(
         String description,
         EventCategory category,
         EventStatus status,
-        LocalDate eventDate,
+        LocalDateTime eventDate,
         Integer minimumAge,
-        String streamingUrl,
-        VenueResponse venue
-) {
-}
+        String venueCode,
+        String venueName,
+        List<ArtistResponse> artists
+) {}

@@ -1,85 +1,74 @@
 package com.pulsepass.service.impl;
 
+import com.pulsepass.dto.request.RegisterUserRequest;
+import com.pulsepass.dto.response.UserResponse;
 import com.pulsepass.entity.User;
+import com.pulsepass.entity.UserProfile;
 import com.pulsepass.exception.BusinessRuleException;
+import com.pulsepass.exception.DuplicateResourceException;
 import com.pulsepass.exception.ResourceNotFoundException;
+import com.pulsepass.mapper.UserMapper;
+import com.pulsepass.repository.UserProfileRepository;
 import com.pulsepass.repository.UserRepository;
 import com.pulsepass.service.UserService;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 
 @Service
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
+    private final UserProfileRepository userProfileRepository;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserProfileRepository userProfileRepository,
+                           UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userProfileRepository = userProfileRepository;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
-
-    @Override
-    public User findById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "User not found with id: " + id));
-    }
-
-    @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "User not found with email: " + email));
-    }
-
-    @Override
-    public User create(User user) {
-
-        if (userRepository.findByEmailIgnoreCase(user.getEmail()).isPresent()) {
-            throw new BusinessRuleException(
-                    "A user with email '" +
-                            user.getEmail() +
-                            "' already exists.");
+    @Transactional
+    public UserResponse register(RegisterUserRequest request) {
+        if (userRepository.existsByUsername(request.username())) {
+            throw new DuplicateResourceException("Username already exists: " + request.username());
+        }
+        if (userRepository.existsByEmailIgnoreCase(request.email())) {
+            throw new DuplicateResourceException("Email already exists: " + request.email());
+        }
+        if (request.birthDate() != null && request.birthDate().isAfter(LocalDate.now())) {
+            throw new BusinessRuleException("Birth date cannot be in the future.");
         }
 
-        if (user.getActive() == null) {
-            user.setActive(true);
-        }
-
-        return userRepository.save(user);
+        User user = new User();
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setActive(true);
+        UserProfile profile = new UserProfile();
+        profile.setFirstName(request.firstName());
+        profile.setLastName(request.lastName());
+        profile.setPhone(request.phone());
+        profile.setCity(request.city());
+        profile.setBirthDate(request.birthDate());
+        profile.setUser(user);
+        user.setProfile(profile);
+        userRepository.save(user);
+        userProfileRepository.save(profile);
+        return userMapper.toResponse(user);
     }
 
     @Override
-    public User update(Long id, User user) {
-
-        User existingUser = findById(id);
-
-        userRepository.findByEmailIgnoreCase(user.getEmail())
-                .filter(existing -> !existing.getId().equals(id))
-                .ifPresent(existing -> {
-                    throw new BusinessRuleException(
-                            "A user with email '" +
-                                    user.getEmail() +
-                                    "' already exists.");
-                });
-
-        existingUser.setUsername(user.getUsername());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setActive(user.getActive());
-
-        return userRepository.save(existingUser);
+    @Transactional(readOnly = true)
+    public UserResponse findByEmail(String email) {
+        return userMapper.toResponse(userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email)));
     }
 
     @Override
-    public void delete(Long id) {
-        User user = findById(id);
-        userRepository.delete(user);
+    @Transactional(readOnly = true)
+    public UserResponse findByUsername(String username) {
+        return userMapper.toResponse(userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username)));
     }
 }

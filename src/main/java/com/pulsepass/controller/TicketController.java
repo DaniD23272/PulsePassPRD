@@ -1,68 +1,28 @@
 package com.pulsepass.controller;
 
-import com.pulsepass.entity.Ticket;
-import com.pulsepass.enums.TicketStatus;
+import com.pulsepass.dto.request.PurchaseTicketRequest;
+import com.pulsepass.dto.response.TicketResponse;
 import com.pulsepass.service.TicketService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
-
     private final TicketService ticketService;
-
-    public TicketController(TicketService ticketService) {
-        this.ticketService = ticketService;
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Ticket>> findAll() {
-        return ResponseEntity.ok(ticketService.findAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Ticket> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(ticketService.findById(id));
-    }
-
-    @GetMapping("/user/{email}")
-    public ResponseEntity<List<Ticket>> findByUserEmail(
-            @PathVariable String email,
-            @RequestParam TicketStatus status) {
-        return ResponseEntity.ok(
-                ticketService.findByUserEmail(email, status));
-    }
-
-    @GetMapping("/event/{eventCode}")
-    public ResponseEntity<List<Ticket>> findByEventCode(
-            @PathVariable String eventCode,
-            @RequestParam TicketStatus status) {
-        return ResponseEntity.ok(
-                ticketService.findByEventCode(eventCode, status));
-    }
-
+    public TicketController(TicketService ticketService) { this.ticketService = ticketService; }
     @PostMapping
-    public ResponseEntity<Ticket> create(@RequestBody Ticket ticket) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ticketService.create(ticket));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Ticket> update(
-            @PathVariable Long id,
-            @RequestBody Ticket ticket) {
-        return ResponseEntity.ok(
-                ticketService.update(id, ticket));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        ticketService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
+    public ResponseEntity<TicketResponse> purchase(@RequestBody PurchaseTicketRequest request) { return ResponseEntity.status(HttpStatus.CREATED).body(ticketService.purchase(request)); }
+    @GetMapping("/{ticketCode}")
+    public ResponseEntity<TicketResponse> findByCode(@PathVariable String ticketCode) { return ResponseEntity.ok(ticketService.findByCode(ticketCode)); }
+    @GetMapping("/user/{email}")
+    public ResponseEntity<List<TicketResponse>> findByUserEmail(@PathVariable String email) { return ResponseEntity.ok(ticketService.findByUserEmail(email)); }
+    @GetMapping("/event/{eventCode}/paid")
+    public ResponseEntity<List<TicketResponse>> findPaidTicketsByEvent(@PathVariable String eventCode) { return ResponseEntity.ok(ticketService.findPaidTicketsByEvent(eventCode)); }
+    @PutMapping("/{ticketCode}/cancel")
+    public ResponseEntity<TicketResponse> cancel(@PathVariable String ticketCode) { return ResponseEntity.ok(ticketService.cancel(ticketCode)); }
+    @PutMapping("/{ticketCode}/use")
+    public ResponseEntity<TicketResponse> markAsUsed(@PathVariable String ticketCode) { return ResponseEntity.ok(ticketService.markAsUsed(ticketCode)); }
 }

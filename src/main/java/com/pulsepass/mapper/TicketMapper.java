@@ -7,8 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface TicketMapper {
-
-    @Mapping(source = "event.eventCode", target = "eventCode")
-    @Mapping(source = "user.username", target = "username")
+    @Mapping(target = "userEmail", source = "user.email")
+    @Mapping(target = "eventCode", source = "event.eventCode")
+    @Mapping(target = "eventName", source = "event.name")
     TicketResponse toResponse(Ticket ticket);
 }
