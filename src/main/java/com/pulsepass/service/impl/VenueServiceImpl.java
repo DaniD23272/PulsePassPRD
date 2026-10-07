@@ -8,14 +8,18 @@ import com.pulsepass.repository.VenueRepository;
 import com.pulsepass.service.VenueService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
 public class VenueServiceImpl implements VenueService {
+
     private final VenueRepository venueRepository;
     private final VenueMapper venueMapper;
 
-    public VenueServiceImpl(VenueRepository venueRepository, VenueMapper venueMapper) {
+    public VenueServiceImpl(
+            VenueRepository venueRepository,
+            VenueMapper venueMapper) {
         this.venueRepository = venueRepository;
         this.venueMapper = venueMapper;
     }
@@ -23,15 +27,22 @@ public class VenueServiceImpl implements VenueService {
     @Override
     @Transactional(readOnly = true)
     public VenueResponse findByCode(String code) {
+
         Venue venue = venueRepository.findByCode(code)
-                .orElseThrow(() -> new ResourceNotFoundException("Venue not found: " + code));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Venue not found with code: " + code));
+
         return venueMapper.toResponse(venue);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<VenueResponse> findActiveVenues() {
+
         return venueRepository.findByActiveTrueOrderByNameAsc()
-                .stream().map(venueMapper::toResponse).toList();
+                .stream()
+                .map(venueMapper::toResponse)
+                .toList();
     }
 }
