@@ -8,14 +8,18 @@ import com.pulsepass.repository.ArtistRepository;
 import com.pulsepass.service.ArtistService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
 public class ArtistServiceImpl implements ArtistService {
+
     private final ArtistRepository artistRepository;
     private final ArtistMapper artistMapper;
 
-    public ArtistServiceImpl(ArtistRepository artistRepository, ArtistMapper artistMapper) {
+    public ArtistServiceImpl(
+            ArtistRepository artistRepository,
+            ArtistMapper artistMapper) {
         this.artistRepository = artistRepository;
         this.artistMapper = artistMapper;
     }
@@ -23,21 +27,36 @@ public class ArtistServiceImpl implements ArtistService {
     @Override
     @Transactional(readOnly = true)
     public ArtistResponse findById(Long id) {
-        return artistMapper.toResponse(artistRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Artist not found: " + id)));
+
+        Artist artist = artistRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Artist not found: " + id
+                ));
+
+        return artistMapper.toResponse(artist);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ArtistResponse findByStageName(String stageName) {
-        return artistMapper.toResponse(artistRepository.findByStageNameIgnoreCase(stageName)
-                .orElseThrow(() -> new ResourceNotFoundException("Artist not found: " + stageName)));
+
+        Artist artist = artistRepository
+                .findByStageNameIgnoreCase(stageName)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Artist not found: " + stageName
+                ));
+
+        return artistMapper.toResponse(artist);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ArtistResponse> findActiveArtists() {
-        return artistRepository.findByActiveTrueOrderByStageNameAsc()
-                .stream().map(artistMapper::toResponse).toList();
+
+        return artistRepository
+                .findByActiveTrueOrderByStageNameAsc()
+                .stream()
+                .map(artistMapper::toResponse)
+                .toList();
     }
 }
