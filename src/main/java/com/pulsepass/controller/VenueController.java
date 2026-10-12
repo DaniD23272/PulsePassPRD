@@ -17,15 +17,14 @@ public class VenueController {
         this.venueService = venueService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<VenueResponse>> findActiveVenues() {
-        return ResponseEntity.ok(venueService.findActiveVenues());
-    }
-
-    @GetMapping("/code/{code}")
+    @GetMapping("/{code}")
     public ResponseEntity<VenueResponse> findByCode(
             @PathVariable String code) {
-
         return ResponseEntity.ok(venueService.findByCode(code));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<VenueResponse>> findActiveVenues() {
+        return ResponseEntity.ok(venueService.findActiveVenues());
     }
 }
