@@ -36,10 +36,12 @@ class EventRepositoryIT {
                 "EV-ORDER-LATER", venue, LocalDate.now().plusDays(30), EventStatus.PUBLISHED);
         Event earlierPublished = createEvent(
                 "EV-ORDER-EARLIER", venue, LocalDate.now().plusDays(10), EventStatus.PUBLISHED);
-        createEvent("EV-ORDER-DRAFT", venue, LocalDate.now().plusDays(1), EventStatus.DRAFT);
+        Event draft = createEvent(
+                "EV-ORDER-DRAFT", venue, LocalDate.now().plusDays(1), EventStatus.DRAFT);
 
         eventRepository.save(laterPublished);
         eventRepository.save(earlierPublished);
+        eventRepository.save(draft);
         eventRepository.flush();
 
         List<Event> result = eventRepository.findByStatusOrderByEventDateAsc(EventStatus.PUBLISHED);
