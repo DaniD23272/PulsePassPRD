@@ -1,6 +1,7 @@
 package com.pulsepass.controller;
 
 import com.pulsepass.dto.request.RegisterUserRequest;
+import com.pulsepass.dto.response.UserResponse;
 import com.pulsepass.exception.DuplicateResourceException;
 import com.pulsepass.exception.GlobalExceptionHandler;
 import com.pulsepass.exception.ResourceNotFoundException;
@@ -9,8 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -40,15 +44,32 @@ class UserControllerTest {
             }
             """;
 
+    private UserResponse userResponse() {
+        return new UserResponse(
+                1L,
+                "andrea",
+                "andrea@email.com",
+                true,
+                "Andrea",
+                "Diaz",
+                "3000000000",
+                "Santa Marta",
+                LocalDate.of(2000, 1, 1)
+        );
+    }
+
     @Test
     void register_valid_returns201() throws Exception {
         when(userService.register(any(RegisterUserRequest.class)))
-                .thenReturn(null);
+                .thenReturn(userResponse());
 
         mvc.perform(post("/api/users")
-                        .contentType("application/json")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_USER))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.username").value("andrea"))
+                .andExpect(jsonPath("$.email").value("andrea@email.com"));
 
         verify(userService).register(any(RegisterUserRequest.class));
     }
@@ -59,9 +80,10 @@ class UserControllerTest {
                 "andrea@email.com", "invalid-email");
 
         mvc.perform(post("/api/users")
-                        .contentType("application/json")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidUser))
                 .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(400));
 
         verify(userService, never())
@@ -74,30 +96,35 @@ class UserControllerTest {
                 .thenThrow(new DuplicateResourceException("Username already exists"));
 
         mvc.perform(post("/api/users")
-                        .contentType("application/json")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_USER))
                 .andExpect(status().isConflict())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(409));
     }
 
     @Test
     void findByEmail_returns200() throws Exception {
-        when(userService.findByEmail("andrea@email.com")).thenReturn(null);
+        when(userService.findByEmail("andrea@email.com")).thenReturn(userResponse());
 
         mvc.perform(get("/api/users/by-email")
                         .param("email", "andrea@email.com"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.email").value("andrea@email.com"));
 
         verify(userService).findByEmail("andrea@email.com");
     }
 
     @Test
     void findByUsername_returns200() throws Exception {
-        when(userService.findByUsername("andrea")).thenReturn(null);
+        when(userService.findByUsername("andrea")).thenReturn(userResponse());
 
         mvc.perform(get("/api/users/by-username")
                         .param("username", "andrea"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.username").value("andrea"));
 
         verify(userService).findByUsername("andrea");
     }
@@ -110,6 +137,19 @@ class UserControllerTest {
         mvc.perform(get("/api/users/by-email")
                         .param("email", "missing@email.com"))
                 .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    void findByUsername_missing_returns404() throws Exception {
+        when(userService.findByUsername("missing"))
+                .thenThrow(new ResourceNotFoundException("User not found"));
+
+        mvc.perform(get("/api/users/by-username")
+                        .param("username", "missing"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(404));
     }
 }
