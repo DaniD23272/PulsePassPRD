@@ -82,4 +82,22 @@ class UserProfileIT {
                 () -> userProfileRepository.saveAndFlush(second));
     }
 
+
+    @Test
+    void shouldRejectDuplicateEmailsIgnoringCase() {
+        User first = new User();
+        first.setUsername("email-case-user-1");
+        first.setEmail("CaseCheck@test.com");
+        first.setActive(true);
+        userRepository.saveAndFlush(first);
+
+        User duplicate = new User();
+        duplicate.setUsername("email-case-user-2");
+        duplicate.setEmail("casecheck@TEST.com");
+        duplicate.setActive(true);
+
+        assertThrows(DataIntegrityViolationException.class,
+                () -> userRepository.saveAndFlush(duplicate));
+    }
+
 }
