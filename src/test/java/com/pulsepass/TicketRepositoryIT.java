@@ -285,4 +285,20 @@ class TicketRepositoryIT {
         assertTrue(results.stream().allMatch(ticket -> ticket.getStatus() == TicketStatus.PAID));
     }
 
+
+    @Test
+    void shouldRejectNegativeTicketPrice() {
+        User user = createUser("ticket-negative-price-user", "ticket-negative-price@test.com");
+        Venue venue = createVenue("VEN-TICKET-NEG-PRICE");
+        Event event = createEvent(
+                "TICKET-EVENT-NEG-PRICE", venue, LocalDate.now().plusDays(25));
+
+        Ticket invalid = createTicket(
+                "TICKET-NEGATIVE-PRICE", user, event, TicketStatus.PAID);
+        invalid.setPrice(new BigDecimal("-1.00"));
+
+        assertThrows(DataIntegrityViolationException.class,
+                () -> ticketRepository.saveAndFlush(invalid));
+    }
+
 }
