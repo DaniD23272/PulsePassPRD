@@ -100,4 +100,22 @@ class UserProfileIT {
                 () -> userRepository.saveAndFlush(duplicate));
     }
 
+
+    @Test
+    void shouldRejectDuplicateUsername() {
+        User first = new User();
+        first.setUsername("duplicate-username");
+        first.setEmail("username-first@test.com");
+        first.setActive(true);
+        userRepository.saveAndFlush(first);
+
+        User duplicate = new User();
+        duplicate.setUsername("duplicate-username");
+        duplicate.setEmail("username-second@test.com");
+        duplicate.setActive(true);
+
+        assertThrows(DataIntegrityViolationException.class,
+                () -> userRepository.saveAndFlush(duplicate));
+    }
+
 }
