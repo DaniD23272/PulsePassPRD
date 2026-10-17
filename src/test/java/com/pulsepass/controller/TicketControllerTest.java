@@ -177,4 +177,16 @@ class TicketControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(409));
     }
+
+    @Test
+    void findByUserEmail_missingRequiredParameter_returns400() throws Exception {
+        mvc.perform(get("/api/tickets/by-user"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Invalid request parameters"));
+
+        verifyNoInteractions(ticketService);
+    }
+
 }

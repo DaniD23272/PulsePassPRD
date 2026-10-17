@@ -37,15 +37,15 @@ Desde la raíz del repositorio:
 ./mvnw clean test
 ```
 
-Este comando compila el proyecto y ejecuta la suite de pruebas que Maven descubre normalmente, incluidas las pruebas unitarias y de controller.
+Este comando ejecuta las pruebas unitarias y de controller descubiertas por Surefire.
 
-Las pruebas de integración de persistencia tienen nombres terminados en `IT`; ejecútalas de forma explícita:
+Para una verificación completa en una sola ejecución, incluyendo todas las clases de integración terminadas en `IT`, usa:
 
 ```bash
-./mvnw -Dtest=EventArtistIT,EventSearchIT,TicketRelationshipIT,TicketRepositoryIT,UserProfileIT,VenuePersistenceIT test
+./mvnw clean verify
 ```
 
-Estas pruebas utilizan PostgreSQL mediante Testcontainers y requieren Docker disponible.
+Maven Failsafe ejecuta las pruebas de integración durante las fases `integration-test` y `verify`. Estas pruebas utilizan PostgreSQL mediante Testcontainers, por lo que Docker debe estar instalado y en ejecución. Si `clean verify` falla, revisa si el error corresponde a compilación, pruebas unitarias/controller o integración con PostgreSQL.
 
 En Windows también puedes ejecutar el wrapper desde PowerShell con `./mvnw.cmd` o desde Git Bash con `./mvnw`.
 
@@ -72,6 +72,8 @@ $env:SPRING_DATASOURCE_PASSWORD = "tu_clave"
 ```
 
 La base de datos indicada debe existir y las credenciales deben tener permisos suficientes para que Flyway ejecute las migraciones y JPA acceda al esquema.
+
+La configuración de la aplicación establece `spring.jpa.hibernate.ddl-auto=validate`: Flyway crea/evoluciona el esquema y Hibernate valida su correspondencia con las entidades, sin generar ni modificar tablas. Las migraciones V1–V4 crean el modelo, datos iniciales de artistas, `streaming_url` y restricciones adicionales de integridad.
 
 ## Endpoints REST
 

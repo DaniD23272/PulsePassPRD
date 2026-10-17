@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -69,4 +70,19 @@ class VenuePersistenceIT {
                 () -> venueRepository.saveAndFlush(duplicate)
         );
     }
+
+    @Test
+    void shouldRejectNonPositiveCapacity() {
+        Venue invalid = new Venue();
+        invalid.setCode("VEN-INVALID-CAPACITY");
+        invalid.setName("Invalid Capacity Venue");
+        invalid.setCity("Santa Marta");
+        invalid.setAddress("Test Address");
+        invalid.setCapacity(0);
+        invalid.setActive(true);
+
+        assertThrows(DataIntegrityViolationException.class,
+                () -> venueRepository.saveAndFlush(invalid));
+    }
+
 }

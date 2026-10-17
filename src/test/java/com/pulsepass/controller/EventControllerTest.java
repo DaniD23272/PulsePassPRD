@@ -241,4 +241,16 @@ class EventControllerTest {
 
         verify(ticketService).findPaidTicketsByEvent("CMF-2027");
     }
+
+    @Test
+    void findByArtist_missingRequiredParameter_returns400() throws Exception {
+        mvc.perform(get("/api/events/by-artist"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Invalid request parameters"));
+
+        verifyNoInteractions(eventService);
+    }
+
 }
