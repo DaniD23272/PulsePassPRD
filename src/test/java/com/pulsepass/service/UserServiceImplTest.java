@@ -58,4 +58,22 @@ class UserServiceImplTest {
         RegisterUserRequest request = new RegisterUserRequest("andrea", "a@x.com", "A", "B", null, null, LocalDate.now().plusDays(1));
         assertThatThrownBy(() -> userService.register(request)).isInstanceOf(BusinessRuleException.class);
     }
+
+    @Test
+    void register_shouldRejectDuplicateEmailIgnoringCase() {
+        when(userRepository.existsByUsername("andrea")).thenReturn(false);
+        when(userRepository.existsByEmailIgnoreCase("ANDREA@EMAIL.COM")).thenReturn(true);
+
+        RegisterUserRequest request = new RegisterUserRequest(
+                "andrea", "ANDREA@EMAIL.COM", "Andrea", "Diaz",
+                null, null, LocalDate.now().minusYears(25));
+
+        assertThatThrownBy(() -> userService.register(request))
+                .isInstanceOf(DuplicateResourceException.class)
+                .hasMessageContaining("Email already exists");
+
+        verify(userRepository, never()).save(any());
+        verify(userProfileRepository, never()).save(any());
+    }
+
 }
