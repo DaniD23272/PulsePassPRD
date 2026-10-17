@@ -152,4 +152,29 @@ class UserControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(404));
     }
+
+    @Test
+    void register_duplicateEmail_returns409() throws Exception {
+        when(userService.register(any(RegisterUserRequest.class)))
+                .thenThrow(new DuplicateResourceException("Email already exists"));
+
+        mvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(VALID_USER))
+                .andExpect(status().isConflict())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(409));
+    }
+
+    @Test
+    void findByEmail_missingRequiredParameter_returns400() throws Exception {
+        mvc.perform(get("/api/users/by-email"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Invalid request parameters"));
+
+        verifyNoInteractions(userService);
+    }
+
 }
