@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -36,6 +37,7 @@ class VenueControllerTest {
 
         mvc.perform(get("/api/venues/VEN-SMR-01"))
                 .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code").value("VEN-SMR-01"));
 
         verify(venueService).findByCode("VEN-SMR-01");
@@ -48,6 +50,7 @@ class VenueControllerTest {
 
         mvc.perform(get("/api/venues/UNKNOWN"))
                 .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Venue not found: UNKNOWN"));
     }
@@ -58,6 +61,7 @@ class VenueControllerTest {
 
         mvc.perform(get("/api/venues/active"))
                 .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
 
         verify(venueService).findActiveVenues();

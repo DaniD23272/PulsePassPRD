@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,6 +36,7 @@ class ArtistControllerTest {
 
         mvc.perform(get("/api/artists/1"))
                 .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.stageName").value("Solar Beat"));
 
         verify(artistService).findById(1L);
@@ -47,7 +49,9 @@ class ArtistControllerTest {
 
         mvc.perform(get("/api/artists/99"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Artist not found: 99"));
     }
 
     @Test
@@ -59,7 +63,10 @@ class ArtistControllerTest {
         mvc.perform(get("/api/artists/by-stage-name")
                         .param("stageName", "Solar Beat"))
                 .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.stageName").value("Solar Beat"));
+
+        verify(artistService).findByStageName("Solar Beat");
     }
 
     @Test
@@ -68,6 +75,7 @@ class ArtistControllerTest {
 
         mvc.perform(get("/api/artists/active"))
                 .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
 
         verify(artistService).findActiveArtists();
