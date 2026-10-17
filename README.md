@@ -73,6 +73,8 @@ $env:SPRING_DATASOURCE_PASSWORD = "tu_clave"
 
 La base de datos indicada debe existir y las credenciales deben tener permisos suficientes para que Flyway ejecute las migraciones y JPA acceda al esquema.
 
+La configuración de la aplicación establece `spring.jpa.hibernate.ddl-auto=validate`: Flyway crea/evoluciona el esquema y Hibernate valida su correspondencia con las entidades, sin generar ni modificar tablas. Las migraciones V1–V4 crean el modelo, datos iniciales de artistas, `streaming_url` y restricciones adicionales de integridad.
+
 ## Endpoints REST
 
 La API expone 20 operaciones de los servicios mediante los siguientes endpoints.
