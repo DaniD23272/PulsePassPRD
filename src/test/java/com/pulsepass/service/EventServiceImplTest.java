@@ -666,5 +666,28 @@ class EventServiceImplTest {
         verify(eventRepository, never()).save(any());
     }
 
+
+    @Test
+    void create_shouldRejectNegativeMinimumAge() {
+        when(eventRepository.existsByEventCode("EV-NEGATIVE-AGE")).thenReturn(false);
+
+        CreateEventRequest request = new CreateEventRequest(
+                "EV-NEGATIVE-AGE",
+                "Concert",
+                "desc",
+                EventCategory.MUSIC,
+                LocalDateTime.now().plusDays(10),
+                -1,
+                "VEN-1"
+        );
+
+        assertThatThrownBy(() -> eventService.create(request))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("Minimum age");
+
+        verify(venueRepository, never()).findByCode(any());
+        verify(eventRepository, never()).save(any());
+    }
+
 }
 
