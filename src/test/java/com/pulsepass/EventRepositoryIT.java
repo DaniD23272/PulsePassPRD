@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -93,4 +94,30 @@ class EventRepositoryIT {
         event.setVenue(venue);
         return event;
     }
+
+    @Test
+    void shouldRejectDuplicateEventCode() {
+        Venue venue = createVenue("VEN-EVENT-DUPLICATE");
+        Event first = createEvent(
+                "EV-CODE-DUPLICATE", venue, LocalDate.now().plusDays(10), EventStatus.DRAFT);
+        eventRepository.saveAndFlush(first);
+
+        Event duplicate = createEvent(
+                "EV-CODE-DUPLICATE", venue, LocalDate.now().plusDays(15), EventStatus.PUBLISHED);
+
+        assertThrows(DataIntegrityViolationException.class,
+                () -> eventRepository.saveAndFlush(duplicate));
+    }
+
+    @Test
+    void shouldRejectNegativeMinimumAge() {
+        Venue venue = createVenue("VEN-EVENT-AGE-CHECK");
+        Event invalid = createEvent(
+                "EV-NEGATIVE-AGE", venue, LocalDate.now().plusDays(10), EventStatus.DRAFT);
+        invalid.setMinimumAge(-1);
+
+        assertThrows(DataIntegrityViolationException.class,
+                () -> eventRepository.saveAndFlush(invalid));
+    }
+
 }
