@@ -80,4 +80,38 @@ class ArtistControllerTest {
 
         verify(artistService).findActiveArtists();
     }
+
+    @Test
+    void findByStageName_missing_returns404() throws Exception {
+        when(artistService.findByStageName("Unknown Artist"))
+                .thenThrow(new ResourceNotFoundException("Artist not found: Unknown Artist"));
+
+        mvc.perform(get("/api/artists/by-stage-name")
+                        .param("stageName", "Unknown Artist"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    void findById_nonNumericId_returns400() throws Exception {
+        mvc.perform(get("/api/artists/not-a-number"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(400));
+
+        verifyNoInteractions(artistService);
+    }
+
+    @Test
+    void findByStageName_missingRequiredParameter_returns400() throws Exception {
+        mvc.perform(get("/api/artists/by-stage-name"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Invalid request parameters"));
+
+        verifyNoInteractions(artistService);
+    }
+
 }
