@@ -4,6 +4,7 @@ import com.pulsepass.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,35 +33,72 @@ public class GlobalExceptionHandler {
             );
         }
 
-        return build(HttpStatus.BAD_REQUEST, "Validation failed", details);
+        return build(
+                HttpStatus.BAD_REQUEST,
+                "Validation failed",
+                details
+        );
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleMalformedRequest(
             HttpMessageNotReadableException ex) {
-        return build(HttpStatus.BAD_REQUEST, "Malformed request", Map.of());
+
+        return build(
+                HttpStatus.BAD_REQUEST,
+                "Malformed request",
+                Map.of()
+        );
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(
             ResourceNotFoundException ex) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage(), Map.of());
+
+        return build(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                Map.of()
+        );
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ErrorResponse> handleDuplicate(
             DuplicateResourceException ex) {
-        return build(HttpStatus.CONFLICT, ex.getMessage(), Map.of());
+
+        return build(
+                HttpStatus.CONFLICT,
+                ex.getMessage(),
+                Map.of()
+        );
     }
 
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<ErrorResponse> handleBusinessRule(
             BusinessRuleException ex) {
-        return build(HttpStatus.CONFLICT, ex.getMessage(), Map.of());
+
+        return build(
+                HttpStatus.CONFLICT,
+                ex.getMessage(),
+                Map.of()
+        );
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthentication(
+            AuthenticationException ex) {
+
+        return build(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid credentials",
+                Map.of()
+        );
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
+    public ResponseEntity<ErrorResponse> handleUnexpected(
+            Exception ex) {
+
         return build(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected internal error occurred",

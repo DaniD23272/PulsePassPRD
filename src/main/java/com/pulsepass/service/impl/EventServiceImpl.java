@@ -188,11 +188,14 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public List<EventSummaryResponse> findByArtist(String stageName) {
+        return eventRepository.findByArtistStageName(stageName).stream()
+                .map(eventMapper::toSummary).toList();
+    }
 
-        return eventRepository
-                .findByArtistStageName(stageName)
-                .stream()
-                .map(eventMapper::toSummary)
-                .toList();
+    @Override
+    @Transactional(readOnly = true)
+    public List<EventSummaryResponse> findPublishedByArtist(String stageName) {
+        return eventRepository.findByArtistStageNameAndStatus(stageName, EventStatus.PUBLISHED)
+                .stream().map(eventMapper::toSummary).toList();
     }
 }
