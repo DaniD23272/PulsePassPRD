@@ -2,10 +2,8 @@ package com.pulsepass.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record LogingRequest(
-
+public record LoginRequest(
         @NotBlank String identifier,
-
         @NotBlank String password
 
 ) {}

@@ -4,9 +4,12 @@ import com.pulsepass.dto.request.CreateEventRequest;
 import com.pulsepass.exception.BusinessRuleException;
 import com.pulsepass.exception.GlobalExceptionHandler;
 import com.pulsepass.exception.ResourceNotFoundException;
+import com.pulsepass.security.CustomUserDetailsService;
+import com.pulsepass.security.JwtService;
 import com.pulsepass.service.EventService;
 import com.pulsepass.service.TicketService;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -23,10 +26,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(EventController.class)
 @Import(GlobalExceptionHandler.class)
+@WithMockUser(roles = "ADMIN")
 class EventControllerTest {
 
     @Autowired
     MockMvc mvc;
+
+    @MockitoBean
+    JwtService jwtService;
+
+    @MockitoBean
+    CustomUserDetailsService customUserDetailsService;
 
     @MockitoBean
     EventService eventService;

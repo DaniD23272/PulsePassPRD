@@ -4,8 +4,11 @@ import com.pulsepass.dto.request.PurchaseTicketRequest;
 import com.pulsepass.exception.BusinessRuleException;
 import com.pulsepass.exception.GlobalExceptionHandler;
 import com.pulsepass.exception.ResourceNotFoundException;
+import com.pulsepass.security.CustomUserDetailsService;
+import com.pulsepass.security.JwtService;
 import com.pulsepass.service.TicketService;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -22,10 +25,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(TicketController.class)
 @Import(GlobalExceptionHandler.class)
+@WithMockUser(roles = "USER")
 class TicketControllerTest {
 
     @Autowired
     MockMvc mvc;
+
+    @MockitoBean
+    JwtService jwtService;
+
+    @MockitoBean
+    CustomUserDetailsService customUserDetailsService;
 
     @MockitoBean
     TicketService ticketService;
@@ -98,6 +108,7 @@ class TicketControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "STAFF")
     void markAsUsed_cancelledTicket_returns409() throws Exception {
         when(ticketService.markAsUsed("TCK-CANCELLED"))
                 .thenThrow(new BusinessRuleException("Cancelled tickets cannot be used"));

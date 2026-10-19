@@ -7,8 +7,10 @@ import com.pulsepass.entity.UserRole;
 import com.pulsepass.repository.UserRepository;
 import com.pulsepass.repository.UserRoleRepository;
 import com.pulsepass.service.AuthService;
-import jakarta.validation.Valid;
+
 import java.util.List;
+
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.pulsepass.dto.request.LoginRequest;
 
 @RestController
 @RequestMapping("/api/auth")

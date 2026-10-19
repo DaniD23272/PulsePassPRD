@@ -4,8 +4,11 @@ import com.pulsepass.dto.request.RegisterUserRequest;
 import com.pulsepass.exception.DuplicateResourceException;
 import com.pulsepass.exception.GlobalExceptionHandler;
 import com.pulsepass.exception.ResourceNotFoundException;
+import com.pulsepass.security.CustomUserDetailsService;
+import com.pulsepass.security.JwtService;
 import com.pulsepass.service.UserService;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -20,10 +23,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(UserController.class)
 @Import(GlobalExceptionHandler.class)
+@WithMockUser(roles = "USER")
 class UserControllerTest {
 
     @Autowired
     MockMvc mvc;
+
+    @MockitoBean
+    JwtService jwtService;
+
+    @MockitoBean
+    CustomUserDetailsService customUserDetailsService;
 
     @MockitoBean
     UserService userService;
@@ -36,7 +46,8 @@ class UserControllerTest {
               "lastName":"Diaz",
               "phone":"3000000000",
               "city":"Santa Marta",
-              "birthDate":"2000-01-01"
+              "birthDate":"2000-01-01",
+              "password":"PulsePassTest!2026"
             }
             """;
 
