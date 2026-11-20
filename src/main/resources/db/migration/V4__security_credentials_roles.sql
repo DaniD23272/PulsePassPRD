@@ -1,3 +1,4 @@
+-- 1. Tabla de credenciales (Relación 1:1 con users)
 CREATE TABLE user_credentials (
                                   user_id BIGINT PRIMARY KEY,
                                   password_hash VARCHAR(100) NOT NULL,
@@ -9,6 +10,7 @@ CREATE TABLE user_credentials (
                                           ON DELETE CASCADE
 );
 
+-- 2. Tabla de roles (Relación N:1 con users)
 CREATE TABLE user_roles (
                             user_id BIGINT NOT NULL,
                             role VARCHAR(20) NOT NULL,

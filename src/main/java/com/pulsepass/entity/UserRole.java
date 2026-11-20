@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "user_roles")
-@IdClass(UserRole.UserRoleId.class)
+@IdClass(UserRole.UserRoleId.class) // Clave primaria compuesta (user_id + role)
 public class UserRole {
 
     @Id
@@ -37,13 +37,12 @@ public class UserRole {
         return role;
     }
 
+    // Clase auxiliar obligatoria para claves compuestas en JPA
     public static class UserRoleId implements Serializable {
-
         private Long userId;
         private String role;
 
-        public UserRoleId() {
-        }
+        public UserRoleId() {}
 
         public UserRoleId(Long userId, String role) {
             this.userId = userId;
@@ -51,11 +50,10 @@ public class UserRole {
         }
 
         @Override
-        public boolean equals(Object other) {
-            if (this == other) return true;
-            if (!(other instanceof UserRoleId that)) return false;
-            return Objects.equals(userId, that.userId)
-                    && Objects.equals(role, that.role);
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof UserRoleId that)) return false;
+            return Objects.equals(userId, that.userId) && Objects.equals(role, that.role);
         }
 
         @Override

@@ -17,6 +17,7 @@ public class UserCredential {
     @Column(name = "user_id")
     private Long userId;
 
+    // @MapsId comparte la clave primaria de User como clave primaria de UserCredential (1:1 estricto)
     @MapsId
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)

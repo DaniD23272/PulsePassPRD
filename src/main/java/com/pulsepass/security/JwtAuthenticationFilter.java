@@ -28,98 +28,72 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtService jwtService;
+
+    private final JwtService JwtService;
     private final CustomUserDetailsService userDetailsService;
     private final JsonMapper objectMapper;
+
     public JwtAuthenticationFilter(
             JwtService jwtService,
             CustomUserDetailsService userDetailsService,
             JsonMapper objectMapper) {
-
-        this.jwtService = jwtService;
-
+        this.JwtService = jwtService;
         this.userDetailsService = userDetailsService;
-
         this.objectMapper = objectMapper;
-
     }
 
     @Override
-
     protected void doFilterInternal(
-
             HttpServletRequest request,
-
             HttpServletResponse response,
-
             FilterChain chain)
-
             throws ServletException, IOException {
 
-        Enumeration<String> values =
-
-                request.getHeaders("Authorization");
-
+        Enumeration<String> values = request.getHeaders("Authorization");
         List<String> headers = Collections.list(values);
 
-        // No aceptar encabezados Authorization duplicados.
-
         if (headers.size() > 1) {
-
             writeUnauthorized(response);
-
             return;
-
         }
 
-        // Si no hay token, las reglas de SecurityConfig deciden
-
-        // si la ruta es pública o requiere autenticación.
-
         if (headers.isEmpty()) {
-
             chain.doFilter(request, response);
-
             return;
-
         }
 
         String header = headers.get(0);
-
-        // Solo se admite el esquema Bearer.
-        if (header == null
-                || !header.regionMatches(true, 0, "Bearer ", 0, 7)) {
+        if (header == null || !header.startsWith("Bearer ")) {
             writeUnauthorized(response);
             return;
         }
+
         String token = header.substring(7).trim();
         if (token.isEmpty()) {
             writeUnauthorized(response);
             return;
         }
+
         try {
-            Claims claims = jwtService.parseAndValidate(token);
+            Claims claims= JwtService.parseAndValidate(token);
             Long userId = Long.valueOf(claims.getSubject());
-            // Reconsulta usuario activo, credenciales y roles vigentes.
-            UserDetails userDetails =
-                    userDetailsService.loadUserById(userId);
-            Authentication existing =
-                    SecurityContextHolder.getContext().getAuthentication();
-            // No reemplazar una autenticación ya establecida.
-            if (existing == null) {
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities());
-                authentication.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request));
-                SecurityContext context =
-                        SecurityContextHolder.createEmptyContext();
-                context.setAuthentication(authentication);
-                SecurityContextHolder.setContext(context);
-            }
+            UserDetails userDetails = userDetailsService.loadUserById(userId);
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
+
+            authentication.setDetails(
+                    new WebAuthenticationDetailsSource()
+                            .buildDetails(request));
+
+            SecurityContext context =
+                    SecurityContextHolder.createEmptyContext();
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
+
         } catch (JwtException
                  | IllegalArgumentException
                  | UsernameNotFoundException ex) {
@@ -127,6 +101,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             writeUnauthorized(response);
             return;
         }
+
         chain.doFilter(request, response);
     }
 
@@ -135,12 +110,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
+
         ErrorResponse body = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(),
                 HttpStatus.UNAUTHORIZED.getReasonPhrase(),
                 "Unauthorized",
                 Map.of());
+
         objectMapper.writeValue(response.getOutputStream(), body);
     }
 }
