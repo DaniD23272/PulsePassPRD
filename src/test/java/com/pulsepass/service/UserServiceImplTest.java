@@ -146,7 +146,7 @@ class UserServiceImplTest {
 
         RegisterUserRequest request = new RegisterUserRequest(
                 "andrea", "ANDREA@EMAIL.COM", "Andrea", "Diaz",
-                null, null, LocalDate.now().minusYears(25));
+                null, null, LocalDate.now().minusYears(25), "Password1234");
 
         assertThatThrownBy(() -> userService.register(request))
                 .isInstanceOf(DuplicateResourceException.class)
