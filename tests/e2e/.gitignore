@@ -1,0 +1,4 @@
+# Mantener fuera del repositorio datos locales con credenciales/JWT o evidencia sensible.
+*.local.json
+*.secret.json
+evidence-private/
