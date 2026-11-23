@@ -1,0 +1,993 @@
+{
+  "info": {
+    "_postman_id": "7f60cb04-a087-4d54-9870-c0dec5e2a001",
+    "name": "PulsePass - E2E Manual",
+    "description": "Colección manual alineada con las 22 rutas del backend: 20 operaciones de negocio y 2 de autenticación. Sin scripts ni ejecución automática. Registrar resultados en tests/e2e/registro-ejecucion-manual.md.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Venues",
+      "item": [
+        {
+          "name": "VNU-01 - Listar venues activos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/venues/active"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 200 OK; lista JSON..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "VNU-02 - Consultar venue por código",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/venues/{{venueCode}}"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 200 OK; venue existente y activo..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        }
+      ]
+    },
+    {
+      "name": "02 - Artists",
+      "item": [
+        {
+          "name": "ART-01 - Listar artistas activos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/artists/active"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 200 OK; lista de artistas activos..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "ART-02 - Consultar artista por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/artists/{{artistId}}"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 200 OK; artista existente..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "ART-03 - Consultar artista por nombre artístico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/artists/by-stage-name?stageName={{artistStageName}}"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 200 OK; artista existente..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        }
+      ]
+    },
+    {
+      "name": "03 - Registro (público)",
+      "item": [
+        {
+          "name": "USR-01 - Registrar USER A",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{userAUsername}}\",\n  \"email\": \"{{userAEmail}}\",\n  \"firstName\": \"Usuario\",\n  \"lastName\": \"A\",\n  \"phone\": \"3000000000\",\n  \"city\": \"Bogota\",\n  \"birthDate\": \"2000-01-01\",\n  \"password\": \"{{userAPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 201 Created; no se devuelve contraseña..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "USR-02 - Registrar USER B",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{userBUsername}}\",\n  \"email\": \"{{userBEmail}}\",\n  \"firstName\": \"Usuario\",\n  \"lastName\": \"B\",\n  \"phone\": \"3000000001\",\n  \"city\": \"Bogota\",\n  \"birthDate\": \"2000-01-01\",\n  \"password\": \"{{userBPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 201 Created; se asigna USER..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "USR-03 - Registrar cuenta STAFF de prueba",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{staffUsername}}\",\n  \"email\": \"{{staffEmail}}\",\n  \"firstName\": \"Cuenta\",\n  \"lastName\": \"Staff\",\n  \"phone\": \"3000000002\",\n  \"city\": \"Bogota\",\n  \"birthDate\": \"1995-01-01\",\n  \"password\": \"{{staffPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 201 Created; el registro público no asigna STAFF automáticamente..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "USR-04 - Registrar cuenta ADMIN de prueba",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"email\": \"{{adminEmail}}\",\n  \"firstName\": \"Cuenta\",\n  \"lastName\": \"Admin\",\n  \"phone\": \"3000000003\",\n  \"city\": \"Bogota\",\n  \"birthDate\": \"1990-01-01\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 201 Created; el registro público no asigna ADMIN automáticamente..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        }
+      ]
+    },
+    {
+      "name": "04 - Auth",
+      "item": [
+        {
+          "name": "AUTH-01 - Login USER A",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{userAIdentifier}}\",\n  \"password\": \"{{userAPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 200 OK; copiar accessToken manualmente a userAToken..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "AUTH-02 - Perfil actual USER A",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 200 OK; id, username, email y roles..\nAntes de enviar: enviar AUTH-01 y copiar su accessToken a userAToken antes de enviar."
+        },
+        {
+          "name": "AUTH-03 - Login USER B",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{userBIdentifier}}\",\n  \"password\": \"{{userBPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login"
+            }
+          },
+          "description": "Actor: USER B.\nEsperado: 200 OK; copiar accessToken a userBToken..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "AUTH-04 - Login STAFF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{staffIdentifier}}\",\n  \"password\": \"{{staffPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login"
+            }
+          },
+          "description": "Actor: STAFF.\nEsperado: 200 OK; copiar accessToken a staffToken después de asignar el rol localmente..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "AUTH-05 - Login ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{adminIdentifier}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login"
+            }
+          },
+          "description": "Actor: ADMIN.\nEsperado: 200 OK; copiar accessToken a adminToken después de asignar el rol localmente..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "AUTH-06 - /me sin token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 401 Unauthorized..\nAntes de enviar: confirmar que no haya Authorization heredado en la solicitud."
+        }
+      ]
+    },
+    {
+      "name": "05 - Users (protegido)",
+      "item": [
+        {
+          "name": "USR-05 - Consultar usuario propio por email",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/by-email?email={{userAEmail}}"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 200 OK; usuario propio y sin contraseña..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "USR-06 - Consultar email de otra persona (anti-IDOR)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/by-email?email={{userBEmail}}"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 403 Forbidden..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "USR-07 - Consultar usuario propio por username",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/by-username?username={{userAUsername}}"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 200 OK; usuario propio..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        }
+      ]
+    },
+    {
+      "name": "06 - Events",
+      "item": [
+        {
+          "name": "EVT-01 - Listar eventos publicados",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/published"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 200 OK; lista pública..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "EVT-02 - Listar eventos por artista",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/by-artist?stageName={{artistStageName}}"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 200 OK; lista pública de eventos publicados..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "EVT-03 - Crear evento DRAFT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventCode\": \"{{eventCode}}\",\n  \"name\": \"Evento E2E PulsePass\",\n  \"description\": \"Evento de prueba manual\",\n  \"category\": \"MUSIC\",\n  \"eventDate\": \"{{eventDate}}\",\n  \"minimumAge\": 0,\n  \"venueCode\": \"{{venueCode}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events"
+            }
+          },
+          "description": "Actor: ADMIN.\nEsperado: 201 Created; estado DRAFT..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "EVT-04 - Consultar evento por código",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{eventCode}}"
+            }
+          },
+          "description": "Actor: ADMIN.\nEsperado: 200 OK; evento DRAFT..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "EVT-05 - Asociar artista al evento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{eventCode}}/artists/{{artistId}}"
+            }
+          },
+          "description": "Actor: ADMIN.\nEsperado: 200 OK; artista asociado..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "EVT-06 - Publicar evento",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{eventCode}}/publish"
+            }
+          },
+          "description": "Actor: ADMIN.\nEsperado: 200 OK; estado PUBLISHED..\nAntes de enviar: crear primero el evento y asociar el artista; la fecha debe ser futura y el venue estar activo."
+        },
+        {
+          "name": "EVT-07 - USER intenta crear evento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventCode\": \"{{deniedEventCode}}\",\n  \"name\": \"No autorizado\",\n  \"description\": \"\",\n  \"category\": \"MUSIC\",\n  \"eventDate\": \"{{eventDate}}\",\n  \"minimumAge\": 0,\n  \"venueCode\": \"{{venueCode}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 403 Forbidden..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "EVT-08 - Anónimo intenta consultar evento DRAFT",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{draftEventCode}}"
+            }
+          },
+          "description": "Actor: anónimo.\nEsperado: 401 Unauthorized..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        }
+      ]
+    },
+    {
+      "name": "07 - Tickets",
+      "item": [
+        {
+          "name": "TKT-00 - USER B compra ticket (fixture anti-IDOR)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userEmail\": \"{{userBEmail}}\",\n  \"eventCode\": \"{{eventCode}}\",\n  \"type\": \"GENERAL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userBToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets"
+            }
+          },
+          "description": "Actor: USER B.\nEsperado: 201 Created; copiar ticketCode a userBTicketCode..\nAntes de enviar: el evento debe estar publicado; esta compra prepara el control de acceso USER A."
+        },
+        {
+          "name": "TKT-01 - Comprar ticket USER A para cancelar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userEmail\": \"{{userAEmail}}\",\n  \"eventCode\": \"{{eventCode}}\",\n  \"type\": \"GENERAL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 201 Created; estado PAID; copiar ticketCode a ticketCancelCode..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "TKT-02 - Comprar otro ticket USER A para usar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userEmail\": \"{{userAEmail}}\",\n  \"eventCode\": \"{{eventCode}}\",\n  \"type\": \"STUDENT\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 201 Created; estado PAID; copiar ticketCode a ticketUseCode..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "EVT-09 - STAFF lista tickets PAID del evento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/events/{{eventCode}}/tickets/paid"
+            }
+          },
+          "description": "Actor: STAFF.\nEsperado: 200 OK; lista con tickets PAID existentes..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "TKT-03 - Consultar ticket propio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketCancelCode}}"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 200 OK; ticket PAID..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "TKT-04 - Listar tickets propios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/by-user?email={{userAEmail}}"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 200 OK; lista de tickets propios..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "TKT-05 - USER A compra para USER B (anti-IDOR)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userEmail\": \"{{userBEmail}}\",\n  \"eventCode\": \"{{eventCode}}\",\n  \"type\": \"GENERAL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 403 Forbidden..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "TKT-06 - USER A consulta ticket de USER B (anti-IDOR)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{userBTicketCode}}"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 403 Forbidden..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "TKT-07 - Cancelar ticket propio",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userAToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketCancelCode}}/cancel"
+            }
+          },
+          "description": "Actor: USER A.\nEsperado: 200 OK; estado CANCELLED..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        },
+        {
+          "name": "TKT-08 - STAFF marca ticket como usado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staffToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketUseCode}}/use"
+            }
+          },
+          "description": "Actor: STAFF.\nEsperado: 200 OK; estado USED..\nAntes de enviar: usar los datos de prueba configurados en el entorno."
+        }
+      ]
+    }
+  ]
+}
