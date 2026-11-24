@@ -100,7 +100,9 @@ public class SecurityConfig {
                         .hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/events/*")
-                        .authenticated()
+                        // La decisión final se toma en EventController:
+                        // permite eventos publicados y exige STAFF/ADMIN para los demás.
+                        .permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/tickets")
                         .hasRole("USER")

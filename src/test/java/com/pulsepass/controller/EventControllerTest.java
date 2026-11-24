@@ -228,7 +228,7 @@ class EventControllerTest {
 
     @Test
     void findByArtist_returns200() throws Exception {
-        when(eventService.findByArtist("Solar Beat")).thenReturn(List.of());
+        when(eventService.findPublishedByArtist("Solar Beat")).thenReturn(List.of());
 
         mvc.perform(get("/api/events/by-artist")
                         .param("stageName", "Solar Beat"))
@@ -236,7 +236,7 @@ class EventControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
 
-        verify(eventService).findByArtist("Solar Beat");
+        verify(eventService).findPublishedByArtist("Solar Beat");
     }
 
     @Test

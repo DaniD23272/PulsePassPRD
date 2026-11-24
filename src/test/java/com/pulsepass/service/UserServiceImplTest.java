@@ -64,7 +64,7 @@ class UserServiceImplTest {
                 "Password1234"
         );
 
-        when(userRepository.existsByUsername("andrea")).thenReturn(false);
+        when(userRepository.existsByUsernameIgnoreCase("andrea")).thenReturn(false);
         when(userRepository.existsByEmailIgnoreCase("andrea@email.com"))
                 .thenReturn(false);
 
@@ -94,7 +94,7 @@ class UserServiceImplTest {
 
     @Test
     void register_shouldRejectDuplicateUsername() {
-        when(userRepository.existsByUsername("andrea")).thenReturn(true);
+        when(userRepository.existsByUsernameIgnoreCase("andrea")).thenReturn(true);
 
         RegisterUserRequest request = new RegisterUserRequest(
                 "andrea",
@@ -118,7 +118,7 @@ class UserServiceImplTest {
 
     @Test
     void register_shouldRejectFutureBirthDate() {
-        when(userRepository.existsByUsername("andrea")).thenReturn(false);
+        when(userRepository.existsByUsernameIgnoreCase("andrea")).thenReturn(false);
         when(userRepository.existsByEmailIgnoreCase("a@x.com"))
                 .thenReturn(false);
 
@@ -141,7 +141,7 @@ class UserServiceImplTest {
 
     @Test
     void register_shouldRejectDuplicateEmailIgnoringCase() {
-        when(userRepository.existsByUsername("andrea")).thenReturn(false);
+        when(userRepository.existsByUsernameIgnoreCase("andrea")).thenReturn(false);
         when(userRepository.existsByEmailIgnoreCase("ANDREA@EMAIL.COM")).thenReturn(true);
 
         RegisterUserRequest request = new RegisterUserRequest(

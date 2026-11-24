@@ -33,7 +33,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         String value = identifier == null ? "" : identifier.trim();
         User user = (value.contains("@")
                 ? users.findByEmailIgnoreCase(value)
-                : users.findByUsername(value)).orElseThrow(this::invalidCredentials);
+                : users.findByUsernameIgnoreCase(value)).orElseThrow(this::invalidCredentials);
         return buildDetails(user);
     }
 

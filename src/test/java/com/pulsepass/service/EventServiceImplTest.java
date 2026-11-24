@@ -42,7 +42,6 @@ import org.mockito.Mock;
 
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 
 import java.time.LocalDateTime;
 
@@ -299,6 +298,41 @@ class EventServiceImplTest {
     }
 
     @Test
+    void create_shouldAcceptEventLaterTodayEvenWithoutChangingCalendarDay() {
+        Venue venue = new Venue();
+        venue.setCode("VEN-1");
+        venue.setActive(true);
+
+        CreateEventRequest request = new CreateEventRequest(
+                "EV-1", "Concert", "desc", EventCategory.MUSIC,
+                LocalDateTime.now().plusHours(2), 18, "VEN-1");
+
+        when(eventRepository.existsByEventCode("EV-1")).thenReturn(false);
+        when(venueRepository.findByCode("VEN-1")).thenReturn(Optional.of(venue));
+        when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(eventMapper.toResponse(any(Event.class))).thenReturn(mock(EventResponse.class));
+
+        eventService.create(request);
+
+        verify(eventRepository).save(any(Event.class));
+    }
+
+    @Test
+    void create_shouldRejectEventEarlierTodayEvenOnTheSameCalendarDay() {
+        CreateEventRequest request = new CreateEventRequest(
+                "EV-1", "Concert", "desc", EventCategory.MUSIC,
+                LocalDateTime.now().minusMinutes(5), 18, "VEN-1");
+
+        when(eventRepository.existsByEventCode("EV-1")).thenReturn(false);
+
+        assertThatThrownBy(() -> eventService.create(request))
+                .isInstanceOf(BusinessRuleException.class);
+
+        verify(venueRepository, never()).findByCode(any());
+        verify(eventRepository, never()).save(any());
+    }
+
+    @Test
 
     void findByCode_shouldReturnDto() {
 
@@ -392,7 +426,7 @@ class EventServiceImplTest {
 
         event.setStatus(EventStatus.DRAFT);
 
-        event.setEventDate(LocalDate.now().plusDays(2));
+        event.setEventDate(LocalDateTime.now().plusDays(2));
 
         Venue venue = new Venue();
 
@@ -442,7 +476,7 @@ class EventServiceImplTest {
 
         event.setStatus(EventStatus.CANCELLED);
 
-        event.setEventDate(LocalDate.now().plusDays(2));
+        event.setEventDate(LocalDateTime.now().plusDays(2));
 
         when(eventRepository.findByEventCode("EV-1"))
 
@@ -616,7 +650,7 @@ class EventServiceImplTest {
         Event event = new Event();
         event.setEventCode("EV-PAST");
         event.setStatus(EventStatus.DRAFT);
-        event.setEventDate(LocalDate.now().minusDays(1));
+        event.setEventDate(LocalDateTime.now().minusDays(1));
 
         Venue venue = new Venue();
         venue.setActive(true);
@@ -636,7 +670,7 @@ class EventServiceImplTest {
         Event event = new Event();
         event.setEventCode("EV-INACTIVE-VENUE");
         event.setStatus(EventStatus.DRAFT);
-        event.setEventDate(LocalDate.now().plusDays(5));
+        event.setEventDate(LocalDateTime.now().plusDays(5));
 
         Venue venue = new Venue();
         venue.setActive(false);
