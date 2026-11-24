@@ -44,8 +44,6 @@ npm.cmd run build
 - `build`: TypeScript estricto y bundle de producción.
 - La suite incluye una auditoría axe de landmarks, nombres y estructura accesible en Inicio de sesión, Cartelera, Detalle, Mis tickets, STAFF y ADMIN. JSDOM no calcula contraste visual; la inspección visual de colores debe hacerse en navegador.
 
-La matriz de cumplimiento y el resultado de las comprobaciones locales están en [`FRONTEND_CHECKLIST.md`](../FRONTEND_CHECKLIST.md), contrastados con el PRD de frontend.
-
 ## Rutas y roles
 
 | Ruta | Acceso | Función |

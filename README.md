@@ -188,7 +188,7 @@ El paquete ZIP de referencia incluye una semilla de demostración que trunca tod
 
 ## Interfaz web
 
-El frontend está en `pulsepass-web/` y usa React, TypeScript, Vite y Tailwind CSS. Inicia primero PostgreSQL y el backend siguiendo la sección «Cómo ejecutar la API localmente». La guía del frontend documenta configuración, roles, rutas, comandos de lint/pruebas/build y alcance funcional: [`pulsepass-web/README.md`](pulsepass-web/README.md). La matriz de implementación frente al PRD está en [`FRONTEND_CHECKLIST.md`](FRONTEND_CHECKLIST.md).
+El frontend está en `pulsepass-web/` y usa React, TypeScript, Vite y Tailwind CSS. Inicia primero PostgreSQL y el backend siguiendo la sección «Cómo ejecutar la API localmente». La guía del frontend documenta configuración, roles, rutas, comandos de lint/pruebas/build y alcance funcional: [`pulsepass-web/README.md`](pulsepass-web/README.md).
 
 ```powershell
 cd pulsepass-web
