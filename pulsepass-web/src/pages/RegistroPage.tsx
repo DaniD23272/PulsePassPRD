@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { registrarUsuario, RegistroSchema } from '../features/auth/api'
 import { ApiError } from '../lib/http'
 import { RUTAS } from '../lib/rutas'
+import { reloj } from '../lib/reloj'
 
 type DatosFormulario = z.infer<typeof RegistroSchema>
 
@@ -63,7 +64,9 @@ export default function RegistroPage() {
             setErrorRegistro(
                 error instanceof ApiError && error.status === 409
                     ? 'El usuario o correo ya está registrado.'
-                    : 'No pudimos crear tu cuenta. Intenta de nuevo.',
+                    : error instanceof ApiError && error.status === 403
+                        ? 'Debes tener al menos 16 años para crear una cuenta.'
+                        : 'No pudimos crear tu cuenta. Intenta de nuevo.',
             )
         }
     }
@@ -106,7 +109,7 @@ export default function RegistroPage() {
                     </div>
                     <div>
                         <label htmlFor="birthDate" className="text-xs font-semibold">Fecha de nacimiento</label>
-                        <input id="birthDate" type="date" autoComplete="bday" {...register('birthDate')} aria-invalid={Boolean(errors.birthDate)} aria-describedby={errors.birthDate ? 'birthDate-error' : undefined} className={claseCampo(Boolean(errors.birthDate))} />
+                        <input id="birthDate" type="date" max={reloj.fechaHoyISO()} autoComplete="bday" {...register('birthDate')} aria-invalid={Boolean(errors.birthDate)} aria-describedby={errors.birthDate ? 'birthDate-error' : undefined} className={claseCampo(Boolean(errors.birthDate))} />
                         {errors.birthDate && <p id="birthDate-error" className="mt-1 text-xs text-red-700 dark:text-red-300">{errors.birthDate.message}</p>}
                     </div>
                     <div>

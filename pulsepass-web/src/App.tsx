@@ -9,6 +9,7 @@ import { ApiError } from './lib/http'
 import InicioPage from './pages/InicioPage'
 import ErrorRuta from './components/ErrorRuta'
 import CargaInicial from './components/CargaInicial'
+import VerificacionEdad from './components/VerificacionEdad'
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -158,7 +159,9 @@ const router = createBrowserRouter([
 export default function App() {
     return (
         <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
+            <VerificacionEdad>
+                <RouterProvider router={router} />
+            </VerificacionEdad>
         </QueryClientProvider>
     )
 }

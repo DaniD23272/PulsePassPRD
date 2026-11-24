@@ -9,12 +9,14 @@ import com.pulsepass.enums.EventStatus;
 import com.pulsepass.enums.TicketStatus;
 import com.pulsepass.enums.TicketType;
 import com.pulsepass.exception.BusinessRuleException;
+import com.pulsepass.exception.AgeRestrictionException;
 import com.pulsepass.exception.ResourceNotFoundException;
 import com.pulsepass.mapper.TicketMapper;
 import com.pulsepass.repository.EventRepository;
 import com.pulsepass.repository.TicketRepository;
 import com.pulsepass.repository.UserRepository;
 import com.pulsepass.service.TicketService;
+import com.pulsepass.util.AgePolicy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -46,6 +48,11 @@ public class TicketServiceImpl implements TicketService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + request.userEmail()));
         if (!Boolean.TRUE.equals(user.getActive())) {
             throw new BusinessRuleException("User is inactive: " + request.userEmail());
+        }
+        if (user.getProfile() == null
+                || !AgePolicy.meetsMinimumAge(user.getProfile().getBirthDate())) {
+            throw new AgeRestrictionException(
+                    "You must be at least 16 years old to purchase tickets.");
         }
 
         Event event = eventRepository.findByEventCode(request.eventCode())

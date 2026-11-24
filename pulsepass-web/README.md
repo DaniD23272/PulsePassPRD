@@ -83,6 +83,10 @@ El JWT se guarda en `sessionStorage` hasta cerrar o expirar la sesión y se env�
 
 La interfaz cubre el catálogo de eventos, artistas y sedes; registro e inicio de sesión; perfil; compra/consulta/cancelación de entradas; validación STAFF y administración de eventos. El flujo de entrada crea el ticket en el sistema y **no procesa un cobro en línea**.
 
+### Verificación de edad
+
+Antes de mostrar cualquier ruta, PulsePass solicita la fecha de nacimiento y requiere una edad mínima de 16 años. La decisión se conserva en `sessionStorage` solo durante la sesión del navegador; la fecha ingresada en esta pantalla no se almacena. El registro también valida la edad en el formulario, mientras que el backend vuelve a comprobarla para registro, inicio de sesión y compra de entradas.
+
 ### Operaciones API conectadas a la interfaz
 
 - `GET /api/artists/by-stage-name` se activa desde el filtro de artista de `/eventos` al usar `?artista=Nombre`.

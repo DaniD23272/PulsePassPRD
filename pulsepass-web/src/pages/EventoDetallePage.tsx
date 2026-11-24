@@ -30,6 +30,13 @@ const TIPOS_ENTRADA: TipoTicket[] = ['GENERAL', 'VIP', 'BACKSTAGE', 'STUDENT']
 const CompraSchema = z.object({ type: TipoTicketSchema })
 type FormularioCompra = z.infer<typeof CompraSchema>
 
+function mensajeErrorCompra(error: unknown): string {
+    if (!(error instanceof ApiError)) return 'No pudimos registrar la compra. Intenta de nuevo.'
+    if (error.status === 403) return 'Debes tener al menos 16 años para comprar entradas.'
+    if ([400, 409].includes(error.status)) return error.message
+    return 'No pudimos registrar la compra. Intenta de nuevo.'
+}
+
 function IconoFecha() {
     return <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" className="size-4 shrink-0"><rect x="2.5" y="4" width="15" height="13" rx="2" /><path d="M6 2.5v3M14 2.5v3M2.5 8h15" /></svg>
 }
@@ -167,7 +174,7 @@ export default function EventoDetallePage() {
 
         {confirmarCompra && <Modal titulo="Confirmar compra" onCerrar={() => { compra.reset(); setConfirmarCompra(false) }}>
             <dl className="space-y-2 text-sm"><div><dt className="text-slate-500 dark:text-slate-400">Evento</dt><dd className="font-semibold">{item.name}</dd></div><div><dt className="text-slate-500 dark:text-slate-400">Tipo</dt><dd className="font-semibold">{tipoConfirmado}</dd></div><div><dt className="text-slate-500 dark:text-slate-400">Cuenta</dt><dd className="font-semibold">{usuario?.email}</dd></div></dl>
-            {compra.isError && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-900 dark:bg-red-950 dark:text-red-100">{compra.error instanceof ApiError && [400, 409].includes(compra.error.status) ? compra.error.message : 'No pudimos registrar la compra. Intenta de nuevo.'}</p>}
+            {compra.isError && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-900 dark:bg-red-950 dark:text-red-100">{mensajeErrorCompra(compra.error)}</p>}
             <div className="mt-6 flex justify-end gap-3"><button type="button" onClick={() => { compra.reset(); setConfirmarCompra(false) }} className="min-h-11 rounded-lg border border-slate-300 px-4 dark:border-slate-700">Cancelar</button><button type="button" disabled={compra.isPending} onClick={() => compra.mutate(tipoConfirmado, { onSuccess: (ticket) => navigate(RUTAS.confirmacionCompra(ticket.ticketCode)) })} className="min-h-11 rounded-lg bg-marca-600 px-5 font-bold text-white disabled:opacity-60">{compra.isPending ? 'Procesando…' : 'Confirmar'}</button></div>
         </Modal>}
         {compraDisponible && !esOperador && <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 p-3 shadow-lg backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-950/95"><button type="button" onClick={() => void abrirConfirmacion()} className="min-h-11 w-full rounded-lg bg-marca-600 px-4 font-semibold text-white">{usuario ? 'Comprar entrada' : 'Inicia sesión para comprar'}</button></div>}

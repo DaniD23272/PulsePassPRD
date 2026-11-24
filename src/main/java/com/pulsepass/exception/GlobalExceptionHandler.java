@@ -21,6 +21,16 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(AgeRestrictionException.class)
+    public ResponseEntity<ErrorResponse> handleAgeRestriction(
+            AgeRestrictionException ex) {
+        return build(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage(),
+                Map.of()
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(
             MethodArgumentNotValidException ex) {

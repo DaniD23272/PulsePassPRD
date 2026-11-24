@@ -6,6 +6,7 @@ import com.pulsepass.entity.UserRole;
 import com.pulsepass.repository.UserCredentialRepository;
 import com.pulsepass.repository.UserRepository;
 import com.pulsepass.repository.UserRoleRepository;
+import com.pulsepass.util.AgePolicy;
 import java.util.List;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,6 +46,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private UserDetails buildDetails(User user) {
         if (!Boolean.TRUE.equals(user.getActive())) throw invalidCredentials();
+        if (user.getProfile() == null
+                || !AgePolicy.meetsMinimumAge(user.getProfile().getBirthDate())) {
+            throw invalidCredentials();
+        }
         UserCredential credential = credentials.findByUserId(user.getId())
                 .orElseThrow(this::invalidCredentials);
         List<SimpleGrantedAuthority> authorities = roles.findAllByUserId(user.getId())

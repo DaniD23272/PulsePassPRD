@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { getJson, postJson } from '../../lib/http'
 import { UsuarioSchema, type Usuario } from '../usuarios/api'
 import { reloj } from '../../lib/reloj'
+import { cumpleEdadMinima } from '../../lib/edad'
 
 const RespuestaLoginSchema = z.object({
     accessToken: z.string().min(1),
@@ -26,7 +27,7 @@ export const RegistroSchema = z.object({
     birthDate: z.string().date('Selecciona una fecha válida.').refine(
         (value) => value <= reloj.fechaHoyISO(),
         'La fecha de nacimiento no puede estar en el futuro.',
-    ),
+    ).refine(cumpleEdadMinima, 'Debes tener al menos 16 años para crear una cuenta.'),
     password: z.string()
         .min(12, 'La contraseña debe tener al menos 12 caracteres.')
         .refine((value) => new TextEncoder().encode(value).length <= 72, 'La contraseña no puede superar 72 bytes UTF-8.'),

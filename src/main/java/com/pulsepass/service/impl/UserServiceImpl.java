@@ -7,6 +7,7 @@ import com.pulsepass.entity.UserCredential;
 import com.pulsepass.entity.UserProfile;
 import com.pulsepass.entity.UserRole;
 import com.pulsepass.exception.BusinessRuleException;
+import com.pulsepass.exception.AgeRestrictionException;
 import com.pulsepass.exception.DuplicateResourceException;
 import com.pulsepass.exception.ResourceNotFoundException;
 import com.pulsepass.mapper.UserMapper;
@@ -15,6 +16,7 @@ import com.pulsepass.repository.UserProfileRepository;
 import com.pulsepass.repository.UserRepository;
 import com.pulsepass.repository.UserRoleRepository;
 import com.pulsepass.service.UserService;
+import com.pulsepass.util.AgePolicy;
 import java.time.LocalDate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,9 +61,13 @@ public class UserServiceImpl implements UserService {
         }
 
         if (request.birthDate() != null
-                && request.birthDate().isAfter(LocalDate.now())) {
+                && request.birthDate().isAfter(AgePolicy.today())) {
             throw new BusinessRuleException(
                     "Birth date cannot be in the future.");
+        }
+        if (!AgePolicy.meetsMinimumAge(request.birthDate())) {
+            throw new AgeRestrictionException(
+                    "You must be at least 16 years old to create an account.");
         }
 
         // La longitud de la contraseña (12 caracteres, 72 bytes UTF-8) se valida

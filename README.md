@@ -141,6 +141,14 @@ En las pruebas E2E, `STAFF` y `ADMIN` se asignan solo en la base local de prueba
 | PATCH | `/api/tickets/{ticketCode}/cancel` | 200 OK |
 | PATCH | `/api/tickets/{ticketCode}/use` | 200 OK |
 
+## Política de edad mínima
+
+PulsePass requiere una edad mínima de **16 años**. El frontend muestra una verificación de fecha de nacimiento antes de permitir el acceso a cualquier ruta; si la fecha corresponde a una persona menor de 16 años, bloquea la navegación durante esa sesión del navegador. La fecha de esa pantalla no se almacena.
+
+La política también se aplica en el backend: no permite registrar cuentas de menores, iniciar sesión con cuentas cuyo perfil indique menos de 16 años ni comprar entradas con esas cuentas. Los intentos de registro y compra se responden con `403 Forbidden`; el inicio de sesión rechazado responde `401 Unauthorized`. Las restricciones de edad particulares de cada evento también se validan al comprar.
+
+La pantalla de entrada usa una fecha declarada por el visitante; no realiza verificación de identidad. Para las operaciones de cuenta y compra, el backend valida la fecha de nacimiento asociada al perfil.
+
 ## Validación y manejo de errores
 
 Las solicitudes se validan antes de llamar al Service. El `GlobalExceptionHandler` devuelve respuestas con una estructura común `ErrorResponse`.
