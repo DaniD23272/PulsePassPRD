@@ -45,6 +45,24 @@ Ejecución local realizada entre el 20 y el 23 de noviembre de 2026 contra `http
 
 También se reportaron respuestas 500 durante las primeras pruebas de seguridad. No quedó un stack trace completo asociado a cada respuesta para atribuirles una causa concreta. Las solicitudes incluidas en el registro final se ejecutaron después y cumplieron sus resultados esperados.
 
+### Verificación manual del frontend
+
+El 23 de noviembre de 2026 se recorrieron los flujos principales del frontend local (`http://localhost:5173`) contra el backend local (`http://localhost:8080`):
+
+| Flujo | Resultado | Evidencia / nota |
+|---|---|---|
+| Iniciar sesión con la cuenta USER y navegar por eventos | PASS | La sesión mostró las opciones para USER. |
+| Abrir el detalle de `E2E-EVENT-20261122` | PASS | Se mostró el evento publicado, lugar, fecha, descripción y artista. |
+| Registrar una entrada General | PASS | La interfaz confirmó el código `TCK-DB7553A9-152`; el ticket quedó pagado. |
+| Consultar y cancelar una entrada propia | PASS | La interfaz mostró el ticket cancelado y el mensaje de confirmación. |
+| Iniciar sesión con `e2e_staff_fix_20261122` y abrir el detalle | PASS | Apareció la sección STAFF / ADMIN «Validar entradas». |
+| Cargar las entradas pagadas del evento | PASS | STAFF vio `TCK-969A6F9D-02D` y `TCK-DB7553A9-152`. |
+| Marcar `TCK-969A6F9D-02D` como usada | PASS | La interfaz confirmó el estado USED y quitó ese ticket de la lista; `TCK-DB7553A9-152` permaneció pagado. |
+
+Durante la primera consulta del detalle desde el frontend, el backend respondió HTTP 401 aunque el evento era público. Se ajustó la regla general de Spring Security para permitir el GET y dejar la decisión de acceso al control de método de `EventController` (evento publicado público; otros estados restringidos). Después del reinicio del backend, el detalle público cargó correctamente. El cambio está en `src/main/java/com/pulsepass/security/SecurityConfig.java`.
+
+Esta tabla registra comprobaciones de interfaz y no cambia el resultado de los casos de la colección Postman. No se guardaron tokens ni contraseñas. Las capturas de evidencia están en la conversación, no en el repositorio.
+
 ### Resultado final
 
 - `VNU-01`–`VNU-02`, `ART-01`–`ART-03`: PASS.

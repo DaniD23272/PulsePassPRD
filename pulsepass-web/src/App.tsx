@@ -2,86 +2,163 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createBrowserRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import Layout from './components/Layout'
-import InicioPage from './pages/InicioPage'
+import { AuthProvider } from './features/auth/AuthProvider'
+import { RutaPorRol, RutaProtegida, SoloAnonimo } from './layouts/Guards'
 import { RUTAS } from './lib/rutas'
+import { ApiError } from './lib/http'
+import InicioPage from './pages/InicioPage'
+import ErrorRuta from './components/ErrorRuta'
+import CargaInicial from './components/CargaInicial'
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,
-      retry: false,
+    defaultOptions: {
+        queries: {
+            staleTime: 30_000,
+            retry: (failureCount, error) => {
+                if (failureCount >= 1 || !(error instanceof ApiError)) return false
+                return error.status === 0 || error.status >= 500
+            },
+            retryDelay: 500,
+        },
+        mutations: { retry: false },
     },
-  },
 })
 
-function ErrorDeRuta() {
-  return (
-      <main className="grid min-h-screen place-items-center bg-slate-50 px-4 dark:bg-slate-950">
-        <section role="alert" className="max-w-lg text-center">
-          <p className="text-sm font-bold uppercase tracking-widest text-marca-600">
-            PulsePass
-          </p>
-          <h1 className="mt-3 font-titulo text-3xl font-bold">
-            No pudimos cargar esta página
-          </h1>
-          <p className="mt-3 text-slate-600 dark:text-slate-300">
-            Intenta volver al inicio.
-          </p>
-          <a
-              href={RUTAS.inicio}
-              className="mt-6 inline-flex min-h-11 items-center rounded-full bg-marca-600 px-5 py-2 font-bold text-white hover:bg-marca-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-marca-600"
-          >
-            Ir al inicio
-          </a>
-        </section>
-      </main>
-  )
-}
-
-function PaginaNoEncontrada() {
-  return (
-      <section className="grid w-full place-items-center py-20 text-center">
-        <p className="text-sm font-bold uppercase tracking-widest text-marca-600">
-          Error 404
-        </p>
-        <h1 className="mt-3 font-titulo text-3xl font-bold">
-          Esta página no existe
-        </h1>
-        <p className="mt-3 text-slate-600 dark:text-slate-300">
-          Revisa la dirección o vuelve al inicio.
-        </p>
-      </section>
-  )
-}
-
 const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Layout />,
-    errorElement: <ErrorDeRuta />,
-    children: [
-      {
-        index: true,
-        element: <InicioPage />,
-      },
-      {
-        path: RUTAS.eventos.slice(1),
-        lazy: async () => ({
-          Component: (await import('./pages/EventosPage')).default,
-        }),
-      },
-      {
-        path: '*',
-        element: <PaginaNoEncontrada />,
-      },
-    ],
-  },
+    {
+        path: RUTAS.inicio,
+        element: <AuthProvider><Layout /></AuthProvider>,
+        HydrateFallback: CargaInicial,
+        errorElement: <ErrorRuta />,
+        children: [
+            { index: true, element: <InicioPage /> },
+            {
+                path: RUTAS.eventos.slice(1),
+                lazy: async () => ({ Component: (await import('./pages/EventosPage')).default }),
+            },
+            {
+                path: `${RUTAS.eventos.slice(1)}/:eventCode`,
+                lazy: async () => ({ Component: (await import('./pages/EventoDetallePage')).default }),
+            },
+            {
+                element: <SoloAnonimo />,
+                children: [
+                    {
+                        path: RUTAS.login.slice(1),
+                        lazy: async () => ({ Component: (await import('./pages/LoginPage')).default }),
+                    },
+                    {
+                        path: RUTAS.registro.slice(1),
+                        lazy: async () => ({ Component: (await import('./pages/RegistroPage')).default }),
+                    },
+                ],
+            },
+            {
+                element: <RutaProtegida />,
+                children: [
+                    {
+                        path: RUTAS.cuenta.slice(1),
+                        lazy: async () => ({ Component: (await import('./pages/CuentaPage')).default }),
+                    },
+                    {
+                        element: <RutaPorRol roles={['USER']} />,
+                        children: [
+                            {
+                                path: RUTAS.misTickets.slice(1),
+                                lazy: async () => ({ Component: (await import('./pages/MisEntradasPage')).default }),
+                            },
+                            {
+                                path: `${RUTAS.misTickets.slice(1)}/:ticketCode`,
+                                lazy: async () => ({ Component: (await import('./pages/DetalleTicketPage')).default }),
+                            },
+                            {
+                                path: 'compra/confirmacion/:ticketCode',
+                                lazy: async () => ({ Component: (await import('./pages/ConfirmacionCompraPage')).default }),
+                            },
+                        ],
+                    },
+                    {
+                        element: <RutaPorRol roles={['STAFF', 'ADMIN']} />,
+                        children: [
+                            {
+                                path: RUTAS.staffValidacion.slice(1),
+                                lazy: async () => ({ Component: (await import('./pages/ValidacionIngresoPage')).default }),
+                            },
+                            {
+                                path: 'staff/eventos/:eventCode/tickets',
+                                lazy: async () => ({ Component: (await import('./pages/TicketsPagadosEventoPage')).default }),
+                            },
+                        ],
+                    },
+                    {
+                        element: <RutaPorRol roles={['ADMIN']} />,
+                        children: [
+                            {
+                                path: RUTAS.adminEventos.slice(1),
+                                lazy: async () => ({ Component: (await import('./pages/AdminEventosPage')).default }),
+                            },
+                            {
+                                path: `${RUTAS.adminEventos.slice(1)}/nuevo`,
+                                lazy: async () => ({ Component: (await import('./pages/AdminCrearEventoPage')).default }),
+                            },
+                            {
+                                path: `${RUTAS.adminEventos.slice(1)}/:eventCode`,
+                                lazy: async () => ({ Component: (await import('./pages/AdminGestionEventoPage')).default }),
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                path: RUTAS.sinPermisos.slice(1),
+                lazy: async () => {
+                    const page = await import('./pages/ErroresPage')
+                    return { Component: page.SinPermisosPage }
+                },
+            },
+            {
+                path: RUTAS.artistas.slice(1),
+                lazy: async () => {
+                    const page = await import('./pages/ListaArtistasPage')
+                    return { Component: page.default }
+                },
+            },
+            {
+                path: `${RUTAS.artistas.slice(1)}/:id`,
+                lazy: async () => {
+                    const page = await import('./pages/DetalleArtistaPage')
+                    return { Component: page.default }
+                },
+            },
+            {
+                path: RUTAS.sedes.slice(1),
+                lazy: async () => {
+                    const page = await import('./pages/ListaSedesPage')
+                    return { Component: page.default }
+                },
+            },
+            {
+                path: `${RUTAS.sedes.slice(1)}/:code`,
+                lazy: async () => {
+                    const page = await import('./pages/DetalleSedePage')
+                    return { Component: page.default }
+                },
+            },
+            {
+                path: '*',
+                lazy: async () => {
+                    const page = await import('./pages/ErroresPage')
+                    return { Component: page.NoEncontradaPage }
+                },
+            },
+        ],
+    },
 ])
 
 export default function App() {
-  return (
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-  )
+    return (
+        <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+        </QueryClientProvider>
+    )
 }

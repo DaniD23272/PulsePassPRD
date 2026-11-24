@@ -12,6 +12,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -115,6 +117,26 @@ public class GlobalExceptionHandler {
         return build(
                 HttpStatus.FORBIDDEN,
                 "Forbidden",
+                Map.of()
+        );
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResource(
+            NoResourceFoundException ex) {
+        return build(
+                HttpStatus.NOT_FOUND,
+                "Resource not found",
+                Map.of()
+        );
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex) {
+        return build(
+                HttpStatus.METHOD_NOT_ALLOWED,
+                "Method not allowed",
                 Map.of()
         );
     }

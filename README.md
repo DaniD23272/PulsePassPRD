@@ -79,7 +79,7 @@ $rng.Dispose()
 
 La base indicada debe existir y las credenciales deben tener permisos suficientes para que Flyway ejecute las migraciones y JPA acceda al esquema. El secreto JWT se genera localmente y no debe guardarse en Git.
 
-La configuración de la aplicación establece `spring.jpa.hibernate.ddl-auto=validate`: Flyway crea/evoluciona el esquema y Hibernate valida su correspondencia con las entidades, sin generar ni modificar tablas. Las migraciones V1–V5 crean el modelo, los datos iniciales, `streaming_url`, restricciones de integridad y las tablas de credenciales y roles.
+La configuración establece `spring.jpa.hibernate.ddl-auto=validate`: Flyway crea/evoluciona el esquema y Hibernate valida su correspondencia con las entidades, sin generar ni modificar tablas. Las migraciones V1–V5 crean el modelo y las tablas de seguridad; V6 agrega unicidad sin distinguir mayúsculas en nombres de usuario y artistas, y V7 conserva la hora del evento usando `TIMESTAMP`. La migración V6 requiere que no existan nombres duplicados al comparar sin distinguir mayúsculas.
 
 ## Endpoints REST
 
@@ -146,11 +146,25 @@ En las pruebas E2E, `STAFF` y `ADMIN` se asignan solo en la base local de prueba
 Las solicitudes se validan antes de llamar al Service. El `GlobalExceptionHandler` devuelve respuestas con una estructura común `ErrorResponse`.
 
 - **400 Bad Request:** validación de campos o JSON mal formado.
-- **404 Not Found:** recurso no encontrado.
+- **401 Unauthorized / 403 Forbidden:** sesión ausente o permisos insuficientes.
+- **404 Not Found:** recurso o ruta no encontrados.
+- **405 Method Not Allowed:** verbo HTTP no admitido para una ruta existente.
 - **409 Conflict:** recurso duplicado o regla de negocio incumplida.
 - **500 Internal Server Error:** error inesperado, sin exponer detalles internos.
 
 Las pruebas de controller utilizan `@WebMvcTest`, `@MockitoBean` y `MockMvc` para comprobar códigos HTTP, contenido JSON y delegación a los servicios.
+
+### Correcciones integradas del paquete de entrega
+
+| Hallazgo | Corrección |
+|---|---|
+| BCrypt limita la contraseña por bytes UTF-8; una validación tardía podía devolver 409. | Se valida el mínimo de 12 caracteres y máximo de 72 bytes antes de registrar; la contraseña inválida devuelve 400. |
+| Username y nombre artístico diferenciaban mayúsculas. | Búsquedas y unicidad ignoran mayúsculas; la migración V6 crea índices únicos sobre `LOWER(username)` y `LOWER(stage_name)`. |
+| La base guardaba la fecha del evento sin hora. | La entidad conserva fecha y hora y compara el instante completo; V7 cambia `event_date` a `TIMESTAMP`. |
+| Rutas inexistentes y verbos HTTP incorrectos podían terminar en 500. | Se responden 404 y 405, respectivamente. |
+| `/api/auth/me` consultaba repositorios directamente desde el controller. | La consulta de identidad y roles vive en `AuthService`; el controller delega en esa capa. |
+
+Las migraciones V6 y V7 se validaron sobre PostgreSQL temporal con Testcontainers. En la base local configurada se comprobó, sin modificarla, que sigue en V5 y no tiene nombres duplicados al comparar sin distinguir mayúsculas; Flyway aplicará V6 y V7 al próximo arranque del backend.
 
 ## Modelo de dominio
 
@@ -170,6 +184,30 @@ Event 1 ─────── N Ticket
 
 La colección Postman, el entorno local, los fixtures y el registro de resultados están en [`tests/e2e`](tests/e2e/README.md). La guía registra los errores encontrados durante la ejecución y cómo se resolvieron; no incluye contraseñas ni tokens.
 
+El paquete ZIP de referencia incluye una semilla de demostración que trunca todas las tablas del sistema. No se incorporó: para el E2E, sigue [`tests/e2e/fixtures/README.md`](tests/e2e/fixtures/README.md) y ejecuta los fixtures únicamente en la base local desechable.
+
+## Interfaz web
+
+El frontend está en `pulsepass-web/` y usa React, TypeScript, Vite y Tailwind CSS. Inicia primero PostgreSQL y el backend siguiendo la sección «Cómo ejecutar la API localmente». La guía del frontend documenta configuración, roles, rutas, comandos de lint/pruebas/build y alcance funcional: [`pulsepass-web/README.md`](pulsepass-web/README.md). La matriz de implementación frente al PRD está en [`FRONTEND_CHECKLIST.md`](FRONTEND_CHECKLIST.md).
+
+```powershell
+cd pulsepass-web
+npm.cmd ci
+npm.cmd run dev
+```
+
+Vite muestra la dirección local, normalmente `http://localhost:5173`. Su proxy reenvía las solicitudes `/api` al backend en `http://localhost:8080`.
+
+Para comprobar la interfaz desde `pulsepass-web/`:
+
+```powershell
+npm.cmd run lint
+npm.cmd test
+npm.cmd run build
+```
+
+Los flujos manuales comprobados y los errores resueltos están en [`tests/e2e/README.md`](tests/e2e/README.md).
+
 ## Alcance actual
 
-El backend incluye persistencia con PostgreSQL y Flyway, servicios, API REST, validación HTTP, autenticación JWT, autorización por roles y pruebas unitarias, de controller, integración y E2E manual.
+PulsePass incluye una API REST con PostgreSQL/Flyway y autenticación JWT por roles, además de una interfaz web React para los flujos descritos arriba. La API cuenta con pruebas unitarias, de controller e integración; la ejecución manual de sus endpoints y la verificación manual del frontend están documentadas en `tests/e2e/`.

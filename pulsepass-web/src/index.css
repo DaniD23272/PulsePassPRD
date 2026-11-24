@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-marca-50: #eef2ff;
   --color-marca-500: #6366f1;
@@ -11,11 +13,16 @@
 }
 
 :root {
+  color-scheme: light;
   font-family: var(--font-cuerpo);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:root.dark {
+  color-scheme: dark;
 }
 
 body {
@@ -27,4 +34,20 @@ body {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local environment secrets ###
+.env
+.env.*
+!.env.example
+
+# Local generated/support artifacts (not application source)
+/output/
+/tmp/

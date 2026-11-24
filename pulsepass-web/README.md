@@ -1,32 +1,96 @@
-# React + TypeScript + Vite
+# PulsePass Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interfaz React + TypeScript para el backend REST de PulsePass. Esta guía cubre instalación, ejecución local, configuración, roles y rutas implementadas.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js `22.22+` (requisito del PRD para React Router 8).
+- npm incluido con Node.js.
+- PostgreSQL y backend PulsePass activos en `http://localhost:8080`.
 
-## React Compiler
+## Configuración
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+La configuración predeterminada usa el proxy local de Vite: las llamadas a `/api` se reenvían al backend en el puerto `8080`.
 
-## Expanding the Oxlint configuration
+El servidor de desarrollo queda fijado en `http://localhost:5173`, el origen permitido por CORS en la configuración local del backend. Si ese puerto está ocupado, Vite se detiene con error en vez de cambiar de puerto y dejar que las peticiones fallen por CORS.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```powershell
+Copy-Item .env.example .env.local
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+`VITE_API_BASE_URL` es opcional y por defecto vale `/api`. Para un backend local distinto, asigna su URL, por ejemplo `http://localhost:8080`. No guardes secretos ni tokens en archivos `.env` versionados. `.env.example` contiene solo valores de ejemplo.
+
+## Ejecutar en Windows
+
+Desde una terminal en `pulsepass-web/`:
+
+```powershell
+npm.cmd ci
+npm.cmd run dev
+```
+
+Abre la URL de Vite que muestra la terminal, normalmente `http://localhost:5173`. Antes, inicia PostgreSQL y el backend desde la raíz del repositorio siguiendo [`README.md`](../README.md#cómo-ejecutar-la-api-localmente). Si el frontend carga pero las consultas fallan, confirma que el backend responda en el puerto `8080`.
+
+## Comprobaciones
+
+```powershell
+npm.cmd run lint
+npm.cmd test
+npm.cmd run build
+```
+
+- `lint`: Oxlint.
+- `test`: Vitest + React Testing Library + MSW; las peticiones se interceptan y no usan la API real.
+- `build`: TypeScript estricto y bundle de producción.
+- La suite incluye una auditoría axe de landmarks, nombres y estructura accesible en Inicio de sesión, Cartelera, Detalle, Mis tickets, STAFF y ADMIN. JSDOM no calcula contraste visual; la inspección visual de colores debe hacerse en navegador.
+
+La matriz de cumplimiento y el resultado de las comprobaciones locales están en [`FRONTEND_CHECKLIST.md`](../FRONTEND_CHECKLIST.md), contrastados con el PRD de frontend.
+
+## Rutas y roles
+
+| Ruta | Acceso | Función |
+|---|---|---|
+| `/` | Público | Inicio y eventos destacados |
+| `/eventos` | Público | Cartelera, filtros por texto, categoría y artista |
+| `/eventos/:eventCode` | Público | Detalle y compra de entradas |
+| `/artistas` | Público | Artistas activos |
+| `/artistas/:id` | Público | Perfil y eventos del artista |
+| `/sedes` | Público | Sedes activas |
+| `/sedes/:code` | Público | Detalle de sede |
+| `/login` | Anónimo | Inicio de sesión |
+| `/registro` | Anónimo | Registro de cuenta USER |
+| `/cuenta` | Sesión activa | Perfil autenticado |
+| `/mis-tickets` | USER | Entradas propias, filtros y cancelación |
+| `/mis-tickets/:ticketCode` | USER | Detalle de entrada propia |
+| `/compra/confirmacion/:ticketCode` | USER | Confirmación de compra |
+| `/staff/validacion` | STAFF, ADMIN | Buscar y usar un ticket pagado |
+| `/staff/eventos/:eventCode/tickets` | STAFF, ADMIN | Tickets pagados de un evento |
+| `/admin/eventos` | ADMIN | Abrir y gestionar eventos |
+| `/admin/eventos/nuevo` | ADMIN | Crear borrador |
+| `/admin/eventos/:eventCode` | ADMIN | Asociar artistas y publicar |
+| `/403` | Público | Acceso denegado |
+| Cualquier ruta desconocida | Público | Página 404 |
+
+Las rutas de página se cargan de forma perezosa, excepto Inicio y Layout. El router usa `createBrowserRouter` y `RouterProvider` de `react-router`/`react-router/dom`.
+
+## Roles de demostración
+
+- El formulario de registro crea cuentas `USER`.
+- `STAFF` y `ADMIN` se asignan únicamente en una base local desechable para la demostración; las instrucciones están en [`tests/e2e/fixtures/README.md`](../tests/e2e/fixtures/README.md). No se habilita la selección de rol en el registro público.
+- No se incluyen credenciales, contraseñas ni JWT en esta guía.
+
+El JWT se guarda en `sessionStorage` hasta cerrar o expirar la sesión y se envía únicamente en el encabezado `Authorization: Bearer`. Un `401` autenticado limpia la caché privada y devuelve a inicio de sesión.
+
+## Alcance funcional
+
+La interfaz cubre el catálogo de eventos, artistas y sedes; registro e inicio de sesión; perfil; compra/consulta/cancelación de entradas; validación STAFF y administración de eventos. El flujo de entrada crea el ticket en el sistema y **no procesa un cobro en línea**.
+
+### Operaciones API conectadas a la interfaz
+
+- `GET /api/artists/by-stage-name` se activa desde el filtro de artista de `/eventos` al usar `?artista=Nombre`.
+- `GET /api/users/by-email` carga el perfil de `/cuenta`.
+- `GET /api/users/by-username` completa los datos del titular en `/mis-tickets/:ticketCode`.
+
+Estas operaciones no requieren pantallas independientes: se consumen dentro de flujos existentes.
+
+Los contratos HTTP y el registro de las pruebas manuales del backend están documentados en [`tests/e2e/README.md`](../tests/e2e/README.md) y [`tests/e2e/registro-ejecucion-manual.md`](../tests/e2e/registro-ejecucion-manual.md).
