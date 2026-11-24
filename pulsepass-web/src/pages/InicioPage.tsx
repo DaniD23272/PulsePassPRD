@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import AvatarIniciales from '../components/AvatarIniciales'
 import EventoCard from '../components/EventoCard'
+import FondoFestival from '../components/FondoFestival'
 import { obtenerEventosPublicados } from '../features/eventos/api'
 import { useAuth } from '../features/auth/AuthContext'
 import { useArtistasActivos } from '../features/artistas/hooks'
@@ -21,13 +22,15 @@ export default function InicioPage() {
     const artistas = useArtistasActivos()
 
     return (
-        <div className="w-full space-y-8 sm:space-y-10">
-            <section className="rounded-2xl bg-linear-to-r from-marca-600 to-acento-500 px-6 py-8 text-white sm:px-10 sm:py-10 lg:px-12">
+        <div className="relative isolate w-full">
+            <FondoFestival />
+            <div className="relative z-10 w-full space-y-8 sm:space-y-10">
+            <section className="rounded-2xl bg-linear-to-r from-pulse-blue via-pulse-berry to-pulse-velvet px-6 py-8 text-white sm:px-10 sm:py-10 lg:px-12">
                 <div className="max-w-2xl">
                     <h1 className="font-titulo text-3xl font-bold leading-tight sm:text-4xl">Descubre los mejores eventos</h1>
                     <p className="mt-3 text-sm text-white/90 sm:text-base">Música, cultura, deporte y tecnología en un solo lugar.</p>
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                        <Link to={RUTAS.eventos} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-marca-700 hover:bg-indigo-50 focus-visible:outline-white">Ver cartelera</Link>
+                        <Link to={RUTAS.eventos} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-marca-700 hover:bg-marca-50 focus-visible:outline-white">Ver cartelera</Link>
                         {!usuario && <Link to={RUTAS.registro} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white px-5 py-2 text-sm font-semibold text-white hover:bg-white/10 focus-visible:outline-white">Crear cuenta</Link>}
                     </div>
                 </div>
@@ -54,6 +57,7 @@ export default function InicioPage() {
                 {!artistas.isLoading && !artistas.isError && artistas.data?.length === 0 && <p className="rounded-xl border border-slate-200 bg-white p-5 text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">Aún no hay artistas activos.</p>}
                 {!artistas.isLoading && !artistas.isError && Boolean(artistas.data?.length) && <ul className="flex flex-wrap gap-x-6 gap-y-3">{(artistas.data ?? []).slice(0, 6).map((artista, indice) => <li key={artista.id}><Link to={RUTAS.artista(artista.id)} className="inline-flex min-h-12 items-center gap-3 rounded-full pr-3 font-semibold hover:text-marca-700 focus-visible:outline-2 focus-visible:outline-offset-2 dark:hover:text-indigo-300"><AvatarIniciales nombre={artista.stageName} indice={indice} tamano="compacto" />{artista.stageName}</Link></li>)}</ul>}
             </section>
+            </div>
         </div>
     )
 }

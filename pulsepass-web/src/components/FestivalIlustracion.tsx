@@ -7,12 +7,12 @@ type Props = {
 }
 
 const PALETA: Record<CategoriaEvento, { inicio: string; medio: string; fin: string; luz: string; figura: string }> = {
-    MUSIC: { inicio: '#6127a5', medio: '#dd367b', fin: '#ff9b55', luz: '#efff83', figura: '#100c27' },
-    SPORTS: { inicio: '#075c61', medio: '#16a58c', fin: '#c3e94b', luz: '#f5ffb0', figura: '#062c37' },
-    TECHNOLOGY: { inicio: '#302878', medio: '#594de0', fin: '#37c4d7', luz: '#b2fff2', figura: '#11132f' },
-    EDUCATION: { inicio: '#81401d', medio: '#e47836', fin: '#f4c55d', luz: '#fff2ad', figura: '#351b24' },
-    CULTURE: { inicio: '#075076', medio: '#178c96', fin: '#97cf68', luz: '#eaff9f', figura: '#092b3c' },
-    ENTERTAINMENT: { inicio: '#78245e', medio: '#d43e74', fin: '#f49a54', luz: '#fff29b', figura: '#29132d' },
+    MUSIC: { inicio: '#0446EF', medio: '#F10393', fin: '#440327', luz: '#FE6EF0', figura: '#1C1859' },
+    SPORTS: { inicio: '#0446EF', medio: '#8B0535', fin: '#1C1859', luz: '#FE6EF0', figura: '#440327' },
+    TECHNOLOGY: { inicio: '#1C1859', medio: '#0446EF', fin: '#FE6EF0', luz: '#F10393', figura: '#1C1859' },
+    EDUCATION: { inicio: '#440327', medio: '#8B0535', fin: '#F10393', luz: '#FE6EF0', figura: '#1C1859' },
+    CULTURE: { inicio: '#0446EF', medio: '#1C1859', fin: '#8B0535', luz: '#FE6EF0', figura: '#440327' },
+    ENTERTAINMENT: { inicio: '#440327', medio: '#F10393', fin: '#0446EF', luz: '#FE6EF0', figura: '#1C1859' },
 }
 
 function FiguraEvento({ categoria, color }: { categoria: CategoriaEvento; color: string }) {
@@ -58,8 +58,8 @@ function FiguraEvento({ categoria, color }: { categoria: CategoriaEvento; color:
         return (
             <g fill={color}>
                 <path d="M221 111q56-24 101 10 45-34 101-10v113q-56-24-101 10-45-34-101-10z" />
-                <path d="M322 121v113" fill="none" stroke="#fff8d7" strokeWidth="6" opacity=".8" />
-                <path d="M239 132q39-14 67 3m-67 19q39-14 67 3m48-22q27-17 67-3m-67 25q27-17 67-3" fill="none" stroke="#fff8d7" strokeLinecap="round" strokeWidth="5" opacity=".85" />
+                <path d="M322 121v113" fill="none" stroke="#FE6EF0" strokeWidth="6" opacity=".8" />
+                <path d="M239 132q39-14 67 3m-67 19q39-14 67 3m48-22q27-17 67-3m-67 25q27-17 67-3" fill="none" stroke="#FE6EF0" strokeLinecap="round" strokeWidth="5" opacity=".85" />
                 <path d="m288 90 13-25 13 25 28 4-20 18 5 27-26-13-25 13 5-27-20-18z" opacity=".9" />
             </g>
         )
@@ -70,7 +70,7 @@ function FiguraEvento({ categoria, color }: { categoria: CategoriaEvento; color:
             <g fill={color}>
                 <path d="M226 121q95-75 190 0v24q-95-66-190 0z" />
                 <path d="M244 146h154v12H244zm14 12h10v68h-10zm35 0h10v68h-10zm35 0h10v68h-10zm35 0h10v68h-10zM239 226h164v15H239z" />
-                <path d="M278 100q-17-15-28 0 0 21 28 35 28-14 28-35-11-15-28 0zm85 0q-17-15-28 0 0 21 28 35 28-14 28-35-11-15-28 0z" fill="#fff2ad" opacity=".9" />
+                <path d="M278 100q-17-15-28 0 0 21 28 35 28-14 28-35-11-15-28 0zm85 0q-17-15-28 0 0 21 28 35 28-14 28-35-11-15-28 0z" fill="#FE6EF0" opacity=".9" />
             </g>
         )
     }

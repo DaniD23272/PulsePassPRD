@@ -1,8 +1,8 @@
 const PALETA = [
-    'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200',
-    'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200',
-    'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200',
-    'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200',
+    'bg-pulse-blue text-white dark:bg-pulse-blue dark:text-white',
+    'bg-pulse-nightlife text-white dark:bg-pulse-nightlife dark:text-white',
+    'bg-pulse-berry text-white dark:bg-pulse-berry dark:text-white',
+    'bg-pulse-light-magenta text-pulse-nightlife dark:bg-pulse-light-magenta dark:text-pulse-nightlife',
 ] as const
 
 const TAMANOS = {
